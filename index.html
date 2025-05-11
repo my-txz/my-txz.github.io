@@ -99,7 +99,7 @@
       } else if (field.selectionStart || field.selectionStart === 0) {
         let start = field.selectionStart;
         let end = field.selectionEnd;
-        field.value = field.value.substring(0, start) + text + field.value.substring(end, field.value.length);
+        field.value = field.value.substring(0, start) + text + field.value.substring(end);
         field.selectionStart = field.selectionEnd = start + text.length;
       } else { field.value += text; }
       field.focus();
@@ -128,7 +128,7 @@
       let found = sensitiveWords.filter(word => text.indexOf(word) !== -1);
       return found.length ? found : null;
     }
-    // --- In-memory obfuscation (using base64 encoding) ---
+    // --- Data persistence using localStorage with simple obfuscation ---
     function encodeData(data) {
       return btoa(JSON.stringify(data));
     }
@@ -136,7 +136,7 @@
       try { return JSON.parse(atob(str)); }
       catch(e) { return defaultVal; }
     }
-    // --- Global Data (stored in memory only, not persisted) ---
+    // --- Global Data Persistence ---
     let defaultUsers = {
       "master": {
         password: "123456",
@@ -151,35 +151,60 @@
         banInfo: { accessBanUntil: 0, chatBanUntil: 0 }
       }
     };
-    let users = defaultUsers; // stored in memory
-    let posts = [];            // array of post objects
-    let currentUser = null;
-    let forumSettings = {"pageSize": 5, "darkMode": false, "categories": ["综合", "技术", "灌水"]};
-    let announcement = '欢迎来到高级简易论坛！管理员(master)可在“论坛设置”中发布公告。';
-    let drafts = {};           // key: username, value: array of drafts
-    let reports = [];          // report records
-
-    // --- Since data are in memory, our "save" simply does nothing (simulate obfuscation) ---
+    let users = decodeData(localStorage.getItem('obf_users'), defaultUsers);
+    let posts = decodeData(localStorage.getItem('obf_posts'), []);
+    let currentUser = JSON.parse(localStorage.getItem('obf_current_user') || 'null');
+    let forumSettings = decodeData(localStorage.getItem('obf_settings'), 
+      {"pageSize":5, "darkMode":false, "categories":["综合", "技术", "灌水"]});
+    let announcement = localStorage.getItem('obf_announcement') || '欢迎来到高级简易论坛！管理员(master)可在“论坛设置”中发布公告。';
+    let drafts = decodeData(localStorage.getItem('obf_drafts'), {});
+    let reports = decodeData(localStorage.getItem('obf_reports'), []);
+    let traffic = decodeData(localStorage.getItem('obf_traffic'), {});
+    // Ensure posts and users structure
+    posts.forEach(p => {
+      if (typeof p.views !== 'number') p.views = 0;
+      if (!Array.isArray(p.likes)) p.likes = [];
+      if (!Array.isArray(p.favs)) p.favs = [];
+      if (!Array.isArray(p.replies)) p.replies = [];
+      if (typeof p.sticky !== 'boolean') p.sticky = false;
+      if (typeof p.category !== 'string') p.category = forumSettings.categories[0];
+      if (!Array.isArray(p.attachments)) p.attachments = [];
+      if (typeof p.draft !== 'boolean') p.draft = false;
+      if (!Array.isArray(p.reports)) p.reports = [];
+    });
+    Object.keys(users).forEach(u => {
+      let user = users[u];
+      if (!user.email) user.email = '';
+      if (!user.avatar) user.avatar = '';
+      if (!user.regDate) user.regDate = todayStr();
+      if (!user.lastSign) user.lastSign = '';
+      if (!user.score) user.score = (u === 'master' ? 1000 : 0);
+      if (!Array.isArray(user.fav)) user.fav = [];
+      if (!user.banInfo) user.banInfo = { accessBanUntil: 0, chatBanUntil: 0 };
+    });
     function save() {
-      // In-memory data not persisted.
-      // For debugging we could log encoded versions:
-      // console.log("Encoded Users:", encodeData(users));
-      // console.log("Encoded Posts:", encodeData(posts));
+      localStorage.setItem('obf_users', encodeData(users));
+      localStorage.setItem('obf_posts', encodeData(posts));
+      localStorage.setItem('obf_current_user', JSON.stringify(currentUser));
+      localStorage.setItem('obf_settings', encodeData(forumSettings));
+      localStorage.setItem('obf_announcement', announcement);
+      localStorage.setItem('obf_drafts', encodeData(drafts));
+      localStorage.setItem('obf_reports', encodeData(reports));
+      localStorage.setItem('obf_traffic', encodeData(traffic));
     }
     // --- Dark Mode ---
     function updateDarkMode() {
       document.getElementById('body').className = forumSettings.darkMode ? 'dark-mode' : '';
     }
     updateDarkMode();
-    // --- Traffic Simulation (for admin) ---
-    // Since we do not persist, simulate traffic in memory.
-    let traffic = {};
+    // --- Traffic Update ---
     function updateTraffic() {
       let today = todayStr();
       if (!traffic[today]) { traffic[today] = { count: 0, ips: [] }; }
       traffic[today].count++;
       let fakeIP = "192.168." + Math.floor(Math.random() * 256) + "." + Math.floor(Math.random() * 256);
       if (traffic[today].ips.indexOf(fakeIP) === -1) { traffic[today].ips.push(fakeIP); }
+      save();
     }
     updateTraffic();
     // --- Navigation ---
