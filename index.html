@@ -33,7 +33,9 @@
     .draft-btn { color: #888; background: none; border: none; cursor: pointer; font-size: 0.92em; }
     .draft-list { margin: 10px 0 25px 0; }
     .draft-list li { margin-bottom: 3px; }
-    .category-label { display: inline-block; border-radius: 3px; font-size: 0.95em; background: #e1eaff; color: #397; padding: 0 4px; margin-right: 6px; }
+    .category-label { display: inline-block; border-radius: 3px; font-size: 0.95em; background: #e1eaff; color: #397;
+      padding: 0 4px; margin-right: 6px;
+    }
     .settings-form { background: #f9f9f9; border-radius: 5px; padding: 8px 15px; border: 1px solid #ddd; }
     .dark-mode { background: #222 !important; color: #eee !important; }
     .dark-mode .container { background: #23272c !important; color: #eee !important; }
@@ -73,8 +75,8 @@
     // --- Utility functions ---
     function escapeHtml(str) {
       if (!str) return "";
-      return str.replace(/[&<>"]/g, function (c) {
-        return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c];
+      return str.replace(/[&<>"]/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
       });
     }
     function filterXSS(str) {
@@ -97,11 +99,9 @@
       } else if (field.selectionStart || field.selectionStart === 0) {
         let start = field.selectionStart;
         let end = field.selectionEnd;
-        field.value = field.value.substring(0, start) + text + field.value.substring(end);
+        field.value = field.value.substring(0, start) + text + field.value.substring(end, field.value.length);
         field.selectionStart = field.selectionEnd = start + text.length;
-      } else {
-        field.value += text;
-      }
+      } else { field.value += text; }
       field.focus();
     }
     function todayStr() {
@@ -120,7 +120,7 @@
     function levelBadge(level) {
       let txts = ['Lv.1', 'Lv.2', 'Lv.3', 'Lv.4', 'Lv.5'];
       let cls = ['level-1', 'level-2', 'level-3', 'level-4', 'level-5'];
-      return `<span class="level-badge ${cls[level - 1]}">${txts[level - 1]}</span>`;
+      return `<span class="level-badge ${cls[level-1]}">${txts[level-1]}</span>`;
     }
     // --- Sensitive words detection ---
     var sensitiveWords = ["脏话", "政治", "敏感", "badword"];
@@ -128,24 +128,15 @@
       let found = sensitiveWords.filter(word => text.indexOf(word) !== -1);
       return found.length ? found : null;
     }
-    // --- Obfuscation using Base64 ---
+    // --- In-memory obfuscation (using base64 encoding) ---
     function encodeData(data) {
       return btoa(JSON.stringify(data));
     }
     function decodeData(str, defaultVal) {
-      try { return JSON.parse(atob(str)); } catch(e) { return defaultVal; }
+      try { return JSON.parse(atob(str)); }
+      catch(e) { return defaultVal; }
     }
-    // --- Simulated traffic record ---
-    function getTraffic() {
-      let traffic = decodeData(localStorage.getItem('obf_traffic'), {});
-      let today = todayStr();
-      if (!traffic[today]) { traffic[today] = { count: 0, ips: [] }; }
-      traffic[today].count++;
-      let fakeIP = "192.168." + Math.floor(Math.random() * 256) + "." + Math.floor(Math.random() * 256);
-      if (traffic[today].ips.indexOf(fakeIP) === -1) { traffic[today].ips.push(fakeIP); }
-      localStorage.setItem('obf_traffic', encodeData(traffic));
-    }
-    // --- Global Data Initialization (with obfuscation) ---
+    // --- Global Data (stored in memory only, not persisted) ---
     let defaultUsers = {
       "master": {
         password: "123456",
@@ -160,64 +151,44 @@
         banInfo: { accessBanUntil: 0, chatBanUntil: 0 }
       }
     };
-    let users = decodeData(localStorage.getItem('obf_users'), defaultUsers);
-    let posts = decodeData(localStorage.getItem('obf_posts'), []);
-    let currentUser = JSON.parse(localStorage.getItem('obf_current_user') || 'null');
-    let forumSettings = decodeData(localStorage.getItem('obf_settings'), {"pageSize":5,"darkMode":false,"categories":["综合","技术","灌水"]});
-    let announcement = localStorage.getItem('obf_announcement') || '欢迎来到高级简易论坛！管理员(master)可在“论坛设置”中发布公告。';
-    let drafts = decodeData(localStorage.getItem('obf_drafts'), {});
-    let reports = decodeData(localStorage.getItem('obf_reports'), []);
-    posts.forEach(p => {
-      if (typeof p.views !== 'number') p.views = 0;
-      if (!Array.isArray(p.likes)) p.likes = [];
-      if (!Array.isArray(p.favs)) p.favs = [];
-      if (!Array.isArray(p.replies)) p.replies = [];
-      if (typeof p.sticky !== 'boolean') p.sticky = false;
-      if (typeof p.category !== 'string') p.category = forumSettings.categories[0];
-      if (!Array.isArray(p.attachments)) p.attachments = [];
-      if (typeof p.draft !== 'boolean') p.draft = false;
-      if (!Array.isArray(p.reports)) p.reports = [];
-    });
-    Object.keys(users).forEach(u => {
-      let user = users[u];
-      if (!user.email) user.email = '';
-      if (!user.avatar) user.avatar = '';
-      if (!user.regDate) user.regDate = todayStr();
-      if (!user.lastSign) user.lastSign = '';
-      if (!user.score) user.score = u === 'master' ? 1000 : 0;
-      if (!Array.isArray(user.fav)) user.fav = [];
-      if (!user.banInfo) user.banInfo = { accessBanUntil: 0, chatBanUntil: 0 };
-    });
-    // --- Save all data with obfuscation ---
+    let users = defaultUsers; // stored in memory
+    let posts = [];            // array of post objects
+    let currentUser = null;
+    let forumSettings = {"pageSize": 5, "darkMode": false, "categories": ["综合", "技术", "灌水"]};
+    let announcement = '欢迎来到高级简易论坛！管理员(master)可在“论坛设置”中发布公告。';
+    let drafts = {};           // key: username, value: array of drafts
+    let reports = [];          // report records
+
+    // --- Since data are in memory, our "save" simply does nothing (simulate obfuscation) ---
     function save() {
-      localStorage.setItem('obf_users', encodeData(users));
-      localStorage.setItem('obf_posts', encodeData(posts));
-      localStorage.setItem('obf_current_user', JSON.stringify(currentUser));
-      localStorage.setItem('obf_settings', encodeData(forumSettings));
-      localStorage.setItem('obf_announcement', announcement);
-      localStorage.setItem('obf_drafts', encodeData(drafts));
-      localStorage.setItem('obf_reports', encodeData(reports));
+      // In-memory data not persisted.
+      // For debugging we could log encoded versions:
+      // console.log("Encoded Users:", encodeData(users));
+      // console.log("Encoded Posts:", encodeData(posts));
     }
     // --- Dark Mode ---
     function updateDarkMode() {
       document.getElementById('body').className = forumSettings.darkMode ? 'dark-mode' : '';
     }
     updateDarkMode();
-    // --- Level system helpers ---
-    function userLevel(u) {
-      let user = users[u];
-      if (!user) return 1;
-      return calcLevel(user.score, user.role);
+    // --- Traffic Simulation (for admin) ---
+    // Since we do not persist, simulate traffic in memory.
+    let traffic = {};
+    function updateTraffic() {
+      let today = todayStr();
+      if (!traffic[today]) { traffic[today] = { count: 0, ips: [] }; }
+      traffic[today].count++;
+      let fakeIP = "192.168." + Math.floor(Math.random() * 256) + "." + Math.floor(Math.random() * 256);
+      if (traffic[today].ips.indexOf(fakeIP) === -1) { traffic[today].ips.push(fakeIP); }
     }
-    // --- Record traffic ---
-    getTraffic();
+    updateTraffic();
     // --- Navigation ---
     function renderNav() {
       let nav = document.getElementById('nav');
       if (currentUser) {
         let user = users[currentUser];
         let role = user.role || "user";
-        let level = userLevel(currentUser);
+        let level = calcLevel(user.score, user.role);
         nav.innerHTML = `
           欢迎, <b>${user.nickname}</b> ${levelBadge(level)}
           <span style="font-size:0.95em;color:#888;">(${role === "admin" ? "管理员" : "普通用户"})</span> |
@@ -227,7 +198,7 @@
           <button onclick="showDrafts()">草稿箱</button>
           <button onclick="showFav()">我的收藏</button>
           <button onclick="signIn()">每日签到</button>
-          ${role === "admin" ? '<button onclick="showUserList()">用户管理</button><button onclick="showSettings()">论坛设置</button><button onclick="showReportList()">举报管理</button><button onclick="showTraffic()">流量管理</button><button onclick="showBanPanel()">封禁管理</button>' : ''}
+          ${role === "admin" ? '<button onclick="showUserList()">用户管理</button><button onclick="showSettings()">论坛设置</button><button onclick="showReportList()">举报管理</button><button onclick="showTraffic()">流量统计</button><button onclick="showBanPanel()">封禁管理</button>' : ''}
           <button onclick="logout()">退出登录</button>
           <button onclick="toggleDarkMode()">${forumSettings.darkMode ? '☀️' : '🌙'}</button>
         `;
@@ -239,8 +210,8 @@
         `;
       }
     }
-    // --- Main Forum Page ---
-    function showMain(page=1, searchTerm='', category='全部') {
+    // --- Main Forum ---
+    function showMain(page = 1, searchTerm = '', category = '全部') {
       renderNav();
       let main = document.getElementById('main');
       let annHtml = `<div class="announcement"><b>公告：</b> ${escapeHtml(announcement)}</div>`;
@@ -258,14 +229,15 @@
       `;
       let filtered = posts.filter(p => {
         if (p.draft) return false;
-        if (category && category !== '全部' && p.category !== category) return false;
+        if (category !== '全部' && p.category !== category) return false;
         if (!searchTerm) return true;
         let kw = searchTerm.toLowerCase();
-        return (p.title.toLowerCase().includes(kw) || p.content.toLowerCase().includes(kw) ||
+        return (p.title.toLowerCase().includes(kw) ||
+                p.content.toLowerCase().includes(kw) ||
                 ((users[p.author]?.nickname || p.author).toLowerCase().includes(kw)));
       });
       filtered.sort((a, b) => (b.sticky ? 1 : 0) - (a.sticky ? 1 : 0) || new Date(b.time) - new Date(a.time));
-      let pageSize = forumSettings.pageSize || 5;
+      let pageSize = forumSettings.pageSize;
       let totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
       let curPage = Math.min(Math.max(page, 1), totalPages);
       let html = annHtml + searchHtml + `<h2>帖子列表</h2>`;
@@ -287,7 +259,7 @@
               ${p.attachments.some(a => a.type === 'file') ? `<span title="有附件">📎</span>` : ''}
             </div>
             <div class="meta">
-              作者: ${users[p.author]?.nickname || p.author} ${levelBadge(userLevel(p.author))}
+              作者: ${users[p.author]?.nickname || p.author} ${levelBadge(calcLevel(users[p.author]?.score || 0, users[p.author]?.role))}
               | 时间: ${p.time} | 回复: ${p.replies.length} | 浏览: ${p.views}
               | <span title="点赞数">👍${p.likes.length}</span> | <span title="收藏数">⭐${p.favs.length}</span>
             </div>
@@ -296,7 +268,7 @@
         html += `<div class="pagination">`;
         if (curPage > 1) html += `<button onclick="showMain(${curPage-1},'${searchTerm}','${category}')">&lt;上一页</button>`;
         for (let i = 1; i <= totalPages; i++)
-          html += `<button onclick="showMain(${i},'${searchTerm}','${category}')"${i === curPage ? ' style="font-weight:bold"' : ''}>${i}</button>`;
+          html += `<button onclick="showMain(${i},'${searchTerm}','${category}')"${i===curPage?' style="font-weight:bold"':''}>${i}</button>`;
         if (curPage < totalPages) html += `<button onclick="showMain(${curPage+1},'${searchTerm}','${category}')">下一页&gt;</button>`;
         html += `</div>`;
       }
@@ -358,7 +330,7 @@
       html += `<div><button onclick="showMain()">返回首页</button></div>`;
       document.getElementById('main').innerHTML = html;
     }
-    // --- Post Details and Report ---
+    // --- Post Details and Reports ---
     function showPost(idx) {
       renderNav();
       let p = posts[idx];
@@ -374,7 +346,7 @@
             <span class="category-label">${escapeHtml(p.category)}</span> ${escapeHtml(p.title)}
           </div>
           <div class="meta">
-            作者: ${users[p.author]?.nickname || p.author} ${levelBadge(userLevel(p.author))}
+            作者: ${users[p.author]?.nickname || p.author} ${levelBadge(calcLevel(users[p.author]?.score || 0, users[p.author]?.role))}
             | 时间: ${p.time} | 浏览: ${p.views} | 点赞: <button class="like-btn${isLiked?' liked':''}" onclick="toggleLike(${idx})">${isLiked?'已赞':'点赞'}（${p.likes.length}）</button>
             收藏: <button class="fav-btn${isFaved?' faved':''}" onclick="toggleFav(${idx})">${isFaved?'已收藏':'收藏'}（${p.favs.length}）</button>
             ${ canDeletePost(idx) ? `<button class="admin-btn" onclick="editPost(${idx})">编辑</button>
@@ -390,7 +362,8 @@
           ${p.replies.map((r, ridx) => `
             <div class="reply">
               <div>
-                <b>${users[r.author]?.nickname || r.author}</b> ${levelBadge(userLevel(r.author))} (${r.time})
+                <b>${users[r.author]?.nickname || r.author}</b> ${levelBadge(calcLevel(users[r.author]?.score||0, users[r.author]?.role))}
+                (${r.time})
                 ${canEditReply(idx, ridx) ? `<button class="admin-btn" onclick="editReply(${idx},${ridx})">编辑</button>
                 <button class="admin-btn" onclick="deleteReply(${idx},${ridx})">删除</button>` : ''}
                 <button class="report-btn" onclick="showReportForm(${idx},${ridx})">举报</button>
@@ -440,7 +413,7 @@
       html += `</ul></div>`;
       return html;
     }
-    // --- Post deletion permission ---
+    // --- Deletion with permission check ---
     function canDeletePost(idx) {
       let p = posts[idx];
       return currentUser && (currentUser === p.author || (users[currentUser] && users[currentUser].role === "admin"));
@@ -457,16 +430,16 @@
     function showReportForm(idx, ridx) {
       renderNav();
       let html = `<div class="report-form">
-        <h3>举报${ typeof ridx === 'number' ? '回复' : '帖子' }</h3>
-        <form onsubmit="submitReport(event,${idx},${typeof ridx === 'number' ? ridx : 'null'})">
-          <label>理由<select name="reason">
-            <option>广告</option><option>辱骂</option><option>违法内容</option><option>色情</option><option>其他</option>
-          </select></label>
-          <label>补充说明（选填）<input name="extra"></label>
-          <button type="submit">提交举报</button>
-        </form>
-        <div><button onclick="showPost(${idx})">返回</button></div>
-      </div>`;
+          <h3>举报${ typeof ridx === 'number' ? '回复' : '帖子' }</h3>
+          <form onsubmit="submitReport(event,${idx},${typeof ridx === 'number' ? ridx : 'null'})">
+            <label>理由<select name="reason">
+              <option>广告</option><option>辱骂</option><option>违法内容</option><option>色情</option><option>其他</option>
+            </select></label>
+            <label>补充说明（选填）<input name="extra"></label>
+            <button type="submit">提交举报</button>
+          </form>
+          <div><button onclick="showPost(${idx})">返回</button></div>
+        </div>`;
       document.getElementById('main').innerHTML = html;
     }
     function submitReport(e, idx, ridx) {
@@ -480,9 +453,7 @@
         replyIdx: typeof ridx === 'number' ? ridx : null,
         reporter: currentUser,
         time: new Date().toLocaleString(),
-        reason,
-        extra,
-        handled: false
+        reason, extra, handled: false
       });
       if (typeof ridx === 'number')
         posts[idx].replies[ridx].reports = (posts[idx].replies[ridx].reports || []).concat([{ reporter: currentUser, reason, extra, time: new Date().toLocaleString() }]);
@@ -502,13 +473,13 @@
           let type = (r.replyIdx !== null) ? '回复' : '帖子';
           let content = type === '帖子' ? escapeHtml(posts[r.postIdx]?.title || '') : escapeHtml(posts[r.postIdx]?.replies?.[r.replyIdx]?.content || '');
           return `<div style="margin-bottom:10px;">
-            <b>[${type}]</b> ${type==='帖子' ? '标题: ' : '内容: '}${content}<br>
-            举报人: ${users[r.reporter]?.nickname || r.reporter} | 时间: ${r.time}<br>
-            理由: ${r.reason} ${r.extra ? ('，说明：' + escapeHtml(r.extra)) : ""}<br>
-            状态: <b>${r.handled ? '已处理' : '待处理'}</b><br>
-            <button class="admin-btn" onclick="handleReport(${i}, true)">通过并删除</button>
-            <button class="admin-btn" onclick="handleReport(${i}, false)">标记为已处理</button>
-          </div>`;
+              <b>[${type}]</b> ${type==='帖子' ? '标题: ' : '内容: '}${content}<br>
+              举报人: ${users[r.reporter]?.nickname || r.reporter} | 时间: ${r.time}<br>
+              理由: ${r.reason} ${r.extra ? ('，说明：' + escapeHtml(r.extra)) : ""}<br>
+              状态: <b>${r.handled ? '已处理' : '待处理'}</b><br>
+              <button class="admin-btn" onclick="handleReport(${i}, true)">通过并删除</button>
+              <button class="admin-btn" onclick="handleReport(${i}, false)">标记为已处理</button>
+            </div>`;
         }).join('') + `</div>`;
       }
       html += `<div><button onclick="showMain()">返回首页</button></div>`;
@@ -606,7 +577,7 @@
         html += `<tr>
           <td>${u}</td>
           <td>${user.nickname}</td>
-          <td>${levelBadge(userLevel(u))}</td>
+          <td>${levelBadge(calcLevel(user.score, user.role))}</td>
           <td>${user.score}</td>
           <td>${user.regDate}</td>
           <td>${user.banInfo && user.banInfo.accessBanUntil > Date.now() ? `<span style="color:#e74c3c;">访问封禁中</span>` : (user.banInfo && user.banInfo.chatBanUntil > Date.now() ? `<span style="color:#e74c3c;">禁言中</span>` : '正常')}</td>
@@ -705,6 +676,49 @@
       save();
       showPost(idx);
     }
+    // --- Post Editing ---
+    function editPost(idx) {
+      let p = posts[idx];
+      showPostForm(p, undefined, idx);
+    }
+    function doEditPost(e, idx) {
+      e.preventDefault();
+      let p = posts[idx];
+      if (users[p.author]?.banInfo?.chatBanUntil > Date.now()) { alert('禁言用户无法编辑'); return; }
+      p.title = e.target.title.value.trim();
+      p.content = e.target.content.value.trim();
+      p.category = e.target.category.value || forumSettings.categories[0];
+      let sensitive = checkSensitive(p.title + " " + p.content);
+      if (sensitive) { alert("内容中包含敏感词：" + sensitive.join(", ")); return; }
+      let files = Array.from(e.target.attachments.files);
+      let video = files.find(f => f.type === 'video/mp4');
+      if (video) {
+        if (!video.name.toLowerCase().endsWith(".mp4") || video.size > 80 * 1024 * 1024) {
+          alert("视频必须为mp4格式且不超过80MB");
+          return;
+        }
+      }
+      if (files.length) {
+        let readerPromises = files.map(file => {
+          if (file.type.startsWith('video/')) {
+            if (!file.name.toLowerCase().endsWith('.mp4') || file.size > 80 * 1024 * 1024) { return Promise.reject("视频必须为mp4格式且不超过80MB"); }
+          }
+          return new Promise(res => {
+            let reader = new FileReader();
+            reader.onload = function(evt) { res({ name: file.name, data: evt.target.result, type: file.type.startsWith('video/') ? 'video' : 'file' }); };
+            reader.readAsDataURL(file);
+          });
+        });
+        Promise.all(readerPromises).then(arr => {
+          p.attachments = arr;
+          save();
+          showPost(idx);
+        }).catch(msg => alert(msg));
+      } else {
+        save();
+        showPost(idx);
+      }
+    }
     // --- User Profile ---
     function showUserProfile() {
       if (!currentUser) return showLogin();
@@ -715,12 +729,12 @@
         <div class="profile-info">
           <img src="${user.avatar || 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + encodeURIComponent(currentUser)}" class="profile-avatar">
           <div class="profile-details">
-            <b>${user.nickname}</b> ${levelBadge(userLevel(currentUser))}<br>
+            <b>${user.nickname}</b> ${levelBadge(calcLevel(user.score, user.role))}<br>
             用户名: ${currentUser}<br>
             邮箱: ${escapeHtml(user.email)}<br>
             注册时间: ${user.regDate}<br>
             当前积分: <span style="color:#2ecc71; font-weight:bold">${user.score}</span><br>
-            等级: ${userLevel(currentUser)}
+            等级: ${calcLevel(user.score, user.role)}
           </div>
         </div>
         <form class="profile-form" onsubmit="updateProfile(event)">
@@ -762,7 +776,7 @@
         showUserProfile();
       }
     }
-    // --- Post Form (New, Edit, Draft) ---
+    // --- Post Form ---
     function showPostForm(p = {}, editingDraftIndex, editingPostIndex) {
       if (!currentUser) { showLogin(); return; }
       if (users[currentUser]?.banInfo?.chatBanUntil > Date.now()) { alert('你已被禁言'); return; }
@@ -813,7 +827,10 @@
       let content = form.content.value.trim();
       let category = form.category.value;
       let files = Array.from(form.attachments.files);
-      if (!title && !content && files.length === 0) { alert('草稿内容不能为空'); return; }
+      if (!title && !content && files.length === 0) {
+        alert('草稿内容不能为空');
+        return;
+      }
       if (files.length) {
         let readerPromises = files.map(file => {
           if (file.type.startsWith('video/')) {
@@ -914,25 +931,7 @@
         setTimeout(showMain, 800);
       }
     }
-    // --- Reply ---
-    function reply(e, idx) {
-      e.preventDefault();
-      let content = e.target.content.value.trim();
-      if (!content) return;
-      if (users[currentUser]?.banInfo?.chatBanUntil > Date.now()) { alert('你已被禁言'); return; }
-      let sensitive = checkSensitive(content);
-      if (sensitive) { alert("回复中包含敏感词：" + sensitive.join(", ")); return; }
-      posts[idx].replies.push({
-        author: currentUser,
-        time: new Date().toLocaleString(),
-        content
-      });
-      users[currentUser].score += 5;
-      save();
-      document.getElementById('replyMsg').innerHTML = `<span class="success">回复成功，获得5积分！</span>`;
-      setTimeout(() => showPost(idx), 600);
-    }
-    // --- Login/Registration ---
+    // --- Login / Register / Logout ---
     function showLogin() {
       renderNav();
       document.getElementById('main').innerHTML = `
@@ -977,9 +976,7 @@
         save();
         msg.innerHTML = `<span class="success">登录成功！</span>`;
         setTimeout(showMain, 600);
-      } else {
-        msg.innerHTML = `<span class="error">用户名或密码错误。</span>`;
-      }
+      } else { msg.innerHTML = `<span class="error">用户名或密码错误。</span>`; }
     }
     function register(e) {
       e.preventDefault();
@@ -988,18 +985,9 @@
       let nickname = e.target.nickname.value.trim();
       let email = e.target.email.value.trim();
       let msg = document.getElementById('registerMsg');
-      if (users[user]) {
-        msg.innerHTML = `<span class="error">用户名已存在。</span>`;
-        return;
-      }
-      if (user.length < 3) {
-        msg.innerHTML = `<span class="error">用户名需至少3位。</span>`;
-        return;
-      }
-      if (email && !/^[\w\.\-]+@[\w\-]+\.[a-zA-Z]{2,}$/.test(email)) {
-        msg.innerHTML = `<span class="error">邮箱格式不正确。</span>`;
-        return;
-      }
+      if (users[user]) { msg.innerHTML = `<span class="error">用户名已存在。</span>`; return; }
+      if (user.length < 3) { msg.innerHTML = `<span class="error">用户名需至少3位。</span>`; return; }
+      if (email && !/^[\w\.\-]+@[\w\-]+\.[a-zA-Z]{2,}$/.test(email)) { msg.innerHTML = `<span class="error">邮箱格式不正确。</span>`; return; }
       users[user] = {
         password: pass,
         nickname,
@@ -1058,7 +1046,7 @@
       updateDarkMode();
       renderNav();
     }
-    // --- Daily Sign-In ---
+    // --- Daily Sign-in ---
     function signIn() {
       if (!currentUser) return showLogin();
       let user = users[currentUser];
@@ -1074,7 +1062,6 @@
     function showTraffic() {
       if (!currentUser || users[currentUser].role !== "admin") return showMain();
       renderNav();
-      let traffic = decodeData(localStorage.getItem('obf_traffic'), {});
       let today = todayStr();
       let todayTraffic = traffic[today] || { count: 0, ips: [] };
       let html = `<h2>今日流量统计 (${today})</h2>
