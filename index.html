@@ -1,310 +1,459 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>《误杀3》全局解说 | 人性深渊的暴力诗学</title>
-    <style>
-        /* 全局样式重置 */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; }
-        body { 
-            background: linear-gradient(135deg, #0a0a0a 0%, #1e1e1e 100%); 
-            color: #f0f0f0; 
-            line-height: 1.8; 
-            overflow-x: hidden;
-        }
-        a { text-decoration: none; color: #ff4d4f; transition: all 0.3s; }
-        a:hover { opacity: 0.8; }
-
-        /* 导航栏 - 悬浮血色条 */
-        .navbar {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 5%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 77, 79, 0.2);
-        }
-        .logo { font-size: 1.5rem; font-weight: bold; color: #ff4d4f; letter-spacing: 2px; }
-        .nav-links { display: flex; gap: 2rem; }
-        .nav-links a { position: relative; }
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -3px; left: 0;
-            width: 0; height: 2px;
-            background: #ff4d4f;
-            transition: width 0.3s;
-        }
-        .nav-links a:hover::after { width: 100%; }
-
-        /* 首页Banner - 动态粒子特效 */
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('https://via.placeholder.com/1920x1080/1e1e1e/000000?text=《误杀3》视觉概念图') no-repeat center/cover;
-            opacity: 0.3;
-            z-index: -1;
-            animation: grain 8s steps(10) infinite;
-        }
-        @keyframes grain {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(-5px, 5px); }
-            50% { transform: translate(5px, -5px); }
-            75% { transform: translate(-5px, -5px); }
-        }
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(90deg, #ff4d4f, #f0f);
-            -webkit-background-clip: text;
-            color: transparent;
-            animation: flicker 3s infinite alternate;
-        }
-        @keyframes flicker {
-            0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity: 0.9; text-shadow: 0 0 10px #ff4d4f, 0 0 20px #ff4d4f; }
-            20%, 24%, 55% { opacity: 0.5; text-shadow: none; }
-        }
-        .hero p { font-size: 1.2rem; max-width: 60%; }
-        .scroll-down {
-            position: absolute;
-            bottom: 5%;
-            animation: bounce 2s infinite;
-        }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        /* 内容模块 - 卡片式布局 + 动态阴影 */
-        .section {
-            padding: 8rem 5%;
-            min-height: 100vh;
-            position: relative;
-            isolation: isolate;
-        }
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            text-align: center;
-            position: relative;
-            display: inline-block;
-        }
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px; left: 50%;
-            transform: translateX(-50%);
-            width: 80px; height: 3px;
-            background: linear-gradient(90deg, #ff4d4f, #f0f);
-        }
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-        .card {
-            background: rgba(30, 30, 30, 0.9);
-            backdrop-filter: blur(5px);
-            border-radius: 10px;
-            padding: 2rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(255, 77, 79, 0.3);
-        }
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 5px;
-            background: linear-gradient(90deg, #ff4d4f, #f0f);
-            transform: translateX(-100%);
-            transition: transform 0.5s;
-        }
-        .card:hover::before { transform: translateX(0); }
-        .card h3 { margin-bottom: 1rem; color: #ff4d4f; }
-
-        /* 视觉隐喻 - 动态背景元素 */
-        .bg-element {
-            position: absolute;
-            opacity: 0.1;
-            pointer-events: none;
-            z-index: -1;
-        }
-        .bg-element.mirror {
-            top: 20%; left: -10%;
-            width: 40%;
-            animation: rotate 40s linear infinite;
-        }
-        .bg-element.blood-drop {
-            bottom: 10%; right: 5%;
-            width: 15%;
-            animation: float 8s ease-in-out infinite alternate;
-        }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-
-        /* 交互特效 - 按钮与锚点 */
-        .cta-btn {
-            display: inline-block;
-            padding: 1rem 2rem;
-            margin-top: 2rem;
-            background: linear-gradient(90deg, #ff4d4f, #f0f);
-            color: white;
-            border-radius: 50px;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(255, 77, 79, 0.4);
-        }
-        .cta-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 77, 79, 0.6);
-        }
-        .anchor {
-            scroll-margin-top: 80px; /* 修正导航栏遮挡 */
-        }
-
-        /* 响应式调整 */
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .hero p { max-width: 90%; }
-            .section { padding: 5rem 5%; }
-            .card-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>《误杀》系列三部曲 终极超详细剧本分析与深度影评</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #141e30;
+      background: linear-gradient(120deg, #243b55, #141e30 80%);
+      color: #f5f6fa;
+      font-family: "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 2.05;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 40px auto;
+      background: rgba(32, 44, 67, 0.98);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(20,30,48,0.25);
+      padding: 48px 32px;
+    }
+    h1, h2, h3, h4 {
+      color: #ffe082;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 16px rgba(255,224,130,0.08);
+    }
+    h1 {
+      font-size: 2.8em;
+      margin-bottom: 0.4em;
+      text-align: center;
+    }
+    h2 {
+      margin-top: 2.2em;
+      font-size: 2em;
+      border-bottom: 2px solid #ffe08244;
+      padding-bottom: 6px;
+    }
+    h3 {
+      color: #ffd54f;
+      margin-top: 1.6em;
+      font-size: 1.25em;
+    }
+    h4 {
+      color: #81d4fa;
+      margin: 1.2em 0 0.6em 0;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .poster {
+      float: right;
+      margin: 0 0 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 6px 24px #0006;
+      width: 210px;
+      max-width: 45vw;
+    }
+    .detail {
+      margin-bottom: 2.2em;
+      font-size: 1.08em;
+      padding-left: 5px;
+    }
+    .section {
+      margin-top: 2.8em;
+      clear: both;
+    }
+    .highlight {
+      color: #81d4fa;
+      font-weight: bold;
+    }
+    .script {
+      background: #222d3d;
+      border-left: 4px solid #ffe082;
+      color: #ffe082;
+      font-family: "Fira Mono", "Consolas", "Menlo", "monospace";
+      font-size: 1.06em;
+      padding: 16px 18px 16px 22px;
+      margin: 18px 0;
+      border-radius: 7px;
+      white-space: pre-line;
+      overflow-x: auto;
+    }
+    .analysis {
+      background: #1a2233;
+      border-left: 6px solid #81d4fa;
+      padding: 14px 18px;
+      border-radius: 7px;
+      margin: 20px 0 30px 0;
+      color: #b8e7ff;
+    }
+    .table-container {
+      margin: 24px 0;
+      overflow-x: auto;
+      background: #182030;
+      border-radius: 6px;
+      padding: 12px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #fffde7;
+      margin: 0;
+    }
+    th, td {
+      border: 1px solid #394867;
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 1em;
+    }
+    th {
+      background: #243b55;
+      color: #ffe082;
+    }
+    tr:nth-child(even) td {
+      background: #212b3a;
+    }
+    .quote {
+      color: #b2fefa;
+      background: #1d2536;
+      border-left: 5px solid #ffd54f;
+      margin: 18px 0;
+      padding: 14px 22px;
+      border-radius: 7px;
+      font-style: italic;
+    }
+    .footer {
+      text-align: center;
+      color: #888;
+      font-size: 0.93em;
+      margin-top: 4em;
+      letter-spacing: 1px;
+    }
+    a {
+      color: #ffd54f;
+      text-decoration: underline;
+      transition: color 0.2s;
+    }
+    a:hover {
+      color: #81d4fa;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 12px 5vw;
+      }
+      .poster {
+        float: none;
+        display: block;
+        margin: 0 auto 18px auto;
+        width: 90vw;
+        max-width: 300px;
+      }
+      .table-container {
+        padding: 0;
+      }
+      table, th, td {
+        font-size: 0.93em;
+        padding: 7px 4px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="logo">误杀3·解构剧场</div>
-        <div class="nav-links">
-            <a href="#theme">核心主题</a>
-            <a href="#characters">角色迷宫</a>
-            <a href="#society">社会隐喻</a>
-            <a href="#visual">视听暴烈</a>
-            <a href="#ending">终局追问</a>
-        </div>
-    </nav>
+  <div class="container">
+    <h1>《误杀》系列三部曲<br>终极超详细剧本分析与深度影评</h1>
+    <p style="text-align:center;color:#81d4fa;font-size:1.25em;margin-bottom:2.7em;">
+      以家庭为核，循推理之道，探人性边界，三部曲全景深度解构。
+    </p>
 
-    <!-- 首页Banner -->
-    <section class="hero" id="home">
-        <img src="https://via.placeholder.com/100/ff4d4f?text=🔪" alt="血色图标" class="bg-element mirror" style="mix-blend-mode: overlay;">
-        <h1>《误杀3》全局解说</h1>
-        <p>当父爱成为武器，暴力能否赎回良知？—— 一场关于阶级、人性与救赎的黑色寓言</p>
-        <a href="#theme" class="scroll-down">⬇️</a>
-    </section>
+    <div class="table-container">
+      <table>
+        <tr>
+          <th>电影</th>
+          <th>导演</th>
+          <th>主演</th>
+          <th>核心主题</th>
+          <th>动物隐喻</th>
+          <th>推荐指数</th>
+        </tr>
+        <tr>
+          <td>误杀1</td>
+          <td>柯汶利</td>
+          <td>肖央、谭卓、陈冲</td>
+          <td>父爱、推理、制度</td>
+          <td>羊</td>
+          <td>★★★★★</td>
+        </tr>
+        <tr>
+          <td>误杀2</td>
+          <td>戴墨</td>
+          <td>肖央、任达华、文咏珊</td>
+          <td>父爱、社会批判</td>
+          <td>萤火虫</td>
+          <td>★★★★☆</td>
+        </tr>
+        <tr>
+          <td>误杀3</td>
+          <td>柯汶利</td>
+          <td>系列班底</td>
+          <td>母爱、反转、迷雾</td>
+          <td>章鱼</td>
+          <td>★★★★☆</td>
+        </tr>
+      </table>
+    </div>
 
-    <!-- 核心主题模块 -->
-    <section class="section" id="theme">
-        <h2 class="section-title anchor">核心主题：善恶边界的撕裂与重构</h2>
-        <div class="card-grid">
-            <div class="card">
-                <h3>道德天平的失衡</h3>
-                <p>影片通过「儿童绑架案」撕开阶层伪装，将「富人赎子」异化为「底层反噬」的暴力实验，质疑「金钱能否赎回良知」。</p>
-            </div>
-            <div class="card">
-                <h3>叙事诡计：罗生门式真相</h3>
-                <p>采用「非线性多视角叙事」，颠覆「真相唯一」的设定——记者实为共谋，父爱暗藏私欲，暴力循环不可逆。</p>
-            </div>
-        </div>
-        <img src="https://via.placeholder.com/400x300/1e1e1e/000000?text=破碎镜面+隐喻" alt="破碎镜面" class="bg-element blood-drop" style="top: 30%; right: 10%;">
-    </section>
+    <!-- 误杀1 -->
+    <div class="section">
+      <h2>《误杀》（2019）<span class="highlight">—— 父爱的极限推理与人性的困境</span></h2>
+      <img src="https://img1.doubanio.com/view/photo/l/public/p2572166069.webp" alt="误杀1海报" class="poster">
+      <div class="detail">
+        <strong>导演：</strong> 柯汶利<br>
+        <strong>主演：</strong> 肖央（李维杰）、谭卓（阿玉）、陈冲（拉韫）、姜皓文（高参）<br>
+        <strong>类型：</strong> 犯罪、悬疑、家庭伦理<br>
+        <strong>改编自：</strong> 印度电影《误杀瞒天记》
+      </div>
 
-    <!-- 角色剖析模块 -->
-    <section class="section" id="characters" style="background: rgba(30, 30, 30, 0.95);">
-        <h2 class="section-title anchor">角色迷宫：困在系统里的「局内人」</h2>
-        <div class="card-grid">
-            <div class="card">
-                <h3>郑炳睿：父权牢笼中的困兽</h3>
-                <p>从「顺从商人」到「反抗者」，其救女行为沦为「暴力消费符号」，最终用绑匪规则反杀，揭示暴力循环的宿命。</p>
-            </div>
-            <div class="card">
-                <h3>绑匪首领：秩序破坏者的哲学狂欢</h3>
-                <p>以「存在主义」为暴力辩护，拒绝无差别杀人却将儿童作为社会实验的棋子，最终与郑炳睿同归于尽，完成对权力体系的献祭。</p>
-            </div>
-        </div>
-    </section>
+      <h3>详细剧情梳理</h3>
+      <ol>
+        <li>
+          <b>序章&家庭生活：</b>小镇上，李维杰是典型“小人物”，经营录像店，妻子阿玉温柔，女儿乖巧。羊的隐喻多次出现，暗示家庭温顺和弱势。
+        </li>
+        <li>
+          <b>危机降临：</b>夏令营后，女儿平平遭素察偷拍、威胁，阿玉失手致其死亡。家庭陷入恐慌，李维杰决定保护家人，启动“电影式推理”计划。
+        </li>
+        <li>
+          <b>计划实施：</b>全家制造不在场证明：参拜寺庙、吃饭、看拳击比赛、在录像店买票据，每个时间点都安排证人和物证。
+        </li>
+        <li>
+          <b>警方介入&权力碾压：</b>拉韫以母亲和局长身份双重压迫，动用全部警力调查，警方用刑、威胁、围堵、甚至制造舆论压力。
+        </li>
+        <li>
+          <b>推理攻防：</b>拉韫步步紧逼，李维杰巧妙应对，寺庙监控、雨天票据、录像带、店主作证等细节构成严密逻辑链。警局搜查无果。
+        </li>
+        <li>
+          <b>高潮反转：</b>警方在新警局地基下发现素察尸体，李维杰坦白一切，但他也表明：“我不是坏人，我只是个父亲。”
+        </li>
+        <li>
+          <b>结尾升华：</b>李维杰自首，拉韫崩溃，亲情与正义的边界被彻底撕裂。影片落幕于忏悔与救赎。
+        </li>
+      </ol>
 
-    <!-- 社会隐喻模块 -->
-    <section class="section" id="society">
-        <h2 class="section-title anchor">社会隐喻：被折叠的「第三世界」困境</h2>
-        <div class="card-grid">
-            <div class="card">
-                <h3>阶级寓言：贫民窟的暴力美学</h3>
-                <p>绑架案发生于东南亚「三不管」地带，集装箱内童稚涂鸦与外部血腥形成残酷对照，隐喻司法体系对特权阶层的庇护。</p>
-            </div>
-            <div class="card">
-                <h3>媒体批判：流量时代的吃人盛宴</h3>
-                <p>直播绑架案中，记者伪造父女诀别视频，弹幕飘过「打赏特效」，将人伦悲剧异化为娱乐狂欢，讽刺自媒体时代的道德沦丧。</p>
-            </div>
-        </div>
-    </section>
+      <h3>剧本/名场面台词</h3>
+      <div class="script">
+【平平哭诉】
+平平：爸爸，我害死了人，是不是我们全家都要完了？
+李维杰（蹲下拥抱）：不是你害的，是爸爸没保护好你。以后无论发生什么，爸爸都会陪着你。
 
-    <!-- 视听语言模块 -->
-    <section class="section" id="visual" style="background: url('https://via.placeholder.com/1920x1080/0a0a0a/000000?text=长镜头+暴力美学') no-repeat center/cover; background-attachment: fixed;">
-        <div style="background: rgba(0, 0, 0, 0.8); padding: 5rem 5%; border-radius: 10px;">
-            <h2 class="section-title anchor">视听暴烈：暴力诗学与心理惊悚</h2>
-            <div class="card-grid">
-                <div class="card">
-                    <h3>镜头语言：凝视与被凝视</h3>
-                    <p>主观镜头模拟绑匪视角，决战戏「一镜到底」长镜头传递窒息感，青灰到血橙的色调渐变象征人性异化。</p>
-                </div>
-                <div class="card">
-                    <h3>声音设计：沉默中的尖叫</h3>
-                    <p>采用ASMR环境音放大心理恐惧，绑匪电话铃声设为《欢乐颂》变调，用童谣反讽暴力。</p>
-                </div>
-            </div>
-        </div>
-    </section>
+【阿玉绝望】
+阿玉：我们能逃得过吗？如果被抓了，你一定要保护好孩子。
+李维杰（坚定）：不管结果如何，我永远不会让你们一个人面对。
 
-    <!-- 终局追问模块 -->
-    <section class="section" id="ending">
-        <h2 class="section-title anchor">终局追问：当「误杀」成为生存法则</h2>
-        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
-            <p style="font-size: 1.2rem; margin-bottom: 2rem;">
-                影片抛出「以暴制暴是否合理」的伦理困境，答案隐于开放式结局——郑炳睿成为新绑匪首领，或女儿日记中的血手印与笑脸，暗示暴力循环永续或代际创伤的可能治愈。
-            </p>
-            <a href="#home" class="cta-btn">回到深渊入口</a>
-        </div>
-    </section>
+【李维杰与拉韫对峙】
+拉韫：你以为凭几部电影就能骗过我？你毁了我的儿子！
+李维杰：你有权力，我只有家人。你能为儿子做一切，我也一样。
 
-    <!-- 动态脚本 -->
-    <script>
-        // 导航栏高亮
-        document.querySelectorAll('.nav-links a').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
+【结局】
+李维杰：如果有来生，我宁愿做一只羊，只要我的家人平安。
+      </div>
 
-        // 视差滚动效果
-        window.addEventListener('scroll', function() {
-            const scrollPos = window.pageYOffset;
-            document.querySelectorAll('.bg-element').forEach(el => {
-                const speed = el.dataset.speed || 1;
-                el.style.transform = `translateY(${scrollPos * speed}px)`;
-            });
-        });
-    </script>
+      <h4>剧情时间线与逻辑拆解</h4>
+      <ul>
+        <li>寺庙监控时间差，录下的是前一天的画面。</li>
+        <li>下雨天换雨衣、票据，伪造目击证人，精妙利用人性记忆误差。</li>
+        <li>尸体藏于新建警局地基，“正义象征之下最安全”。</li>
+      </ul>
+
+      <h4>细节深度分析</h4>
+      <div class="analysis">
+        <ul>
+          <li><b>父爱与道德困境：</b>李维杰是“羊”，但当家庭遭遇毁灭性危机时，他以弱胜强，挑战权力体制。</li>
+          <li><b>制度批判：</b>警方滥权，社会舆论的冷漠，层层加码小人物的绝望。</li>
+          <li><b>推理结构：</b>电影中电影，逻辑闭环无懈可击，极具观影趣味。</li>
+        </ul>
+      </div>
+
+      <h3>深度影评</h3>
+      <div class="analysis">
+        《误杀1》标志着国产悬疑片的成熟，父爱、推理、社会现实三者兼容，细节与情感俱佳。人物弧光饱满，结尾忏悔极具震撼。值得多次回味。
+        <br>
+        <b>推荐指数：</b>★★★★★
+      </div>
+      <div class="quote">
+        “每一个普通人，在命运面前都像一只羔羊，但父爱让他拥有了与命运抗争的勇气。”
+      </div>
+    </div>
+
+    <!-- 误杀2 -->
+    <div class="section">
+      <h2>《误杀2》（2021）<span class="highlight">—— 绝望父亲与制度黑洞</span></h2>
+      <img src="https://img1.doubanio.com/view/photo/l/public/p2704473883.webp" alt="误杀2海报" class="poster">
+      <div class="detail">
+        <strong>导演：</strong> 戴墨<br>
+        <strong>主演：</strong> 肖央（林日朗）、任达华（张正义）、文咏珊（阿玲）<br>
+        <strong>类型：</strong> 犯罪、悬疑、社会伦理
+      </div>
+      <h3>详细剧情梳理</h3>
+      <ol>
+        <li><b>家庭困境：</b>底层父亲林日朗靠修理为生，儿子患心脏病，急需移植。</li>
+        <li><b>制度冷漠：</b>林日朗多次求医无果，医院资源被权贵垄断，心脏被“优先”分配，家庭绝望。</li>
+        <li><b>极端选择：</b>林日朗劫持医院，挟持院长和病患，要求社会关注医疗不公，舆论哗然。</li>
+        <li><b>多方对峙：</b>张正义警官以理服人，媒体、群众、医院、权贵家属多方博弈，萤火虫象征微光希望。</li>
+        <li><b>高潮反转：</b>林日朗被捕，儿子获救，事件引发医疗改革，社会反思层层递进。</li>
+      </ol>
+
+      <h3>剧本/名场面台词</h3>
+      <div class="script">
+【医院激烈对峙】
+林日朗：你们说法律面前人人平等，可我的孩子呢，他等来的只有死亡通知书！
+
+张正义：我也有孩子，我知道你的心情。可你不能让更多家庭破碎。
+
+【父子诀别】
+林日朗（抱着儿子）：爸爸不能一直陪着你，但你要坚强，记住，爸爸永远爱你。
+
+【媒体采访】
+记者：林先生，你觉得自己是英雄还是罪犯？
+林日朗（沉默片刻）：如果换做你，你会怎么做？
+      </div>
+
+      <h4>角色关系与多线并行</h4>
+      <ul>
+        <li>林日朗与儿子：父爱之极，弱者的呐喊。</li>
+        <li>张正义：制度内的温和改革者。</li>
+        <li>院长/富家家属：权力与冷漠的象征。</li>
+      </ul>
+
+      <h4>动物隐喻与象征</h4>
+      <ul>
+        <li>萤火虫：即使微弱，也要点亮黑夜，象征底层希望。</li>
+        <li>群众舆论：正义的微光汇聚才有改变。</li>
+      </ul>
+
+      <h4>深度分析</h4>
+      <div class="analysis">
+        <ul>
+          <li><b>社会批判：</b>医疗分配、权力寻租、贫富差距，现实痛点被层层剥开。</li>
+          <li><b>父爱升级：</b>从保护到牺牲，林日朗用极端方式唤醒社会关注。</li>
+          <li><b>群像刻画：</b>警察、医护、患者、媒体，每个人都不是绝对正义或邪恶。</li>
+        </ul>
+      </div>
+
+      <h3>深度影评</h3>
+      <div class="analysis">
+        《误杀2》不再是简单推理，而是制度批判与人性挣扎的现实寓言。情感浓度高，现实共鸣强，细节丰富。结尾“微光成炬”，令人动容。
+        <br>
+        <b>推荐指数：</b>★★★★☆
+      </div>
+      <div class="quote">
+        “社会的微光，终将汇聚成改变的火炬。”
+      </div>
+    </div>
+
+    <!-- 误杀3 -->
+    <div class="section">
+      <h2>《误杀3》（2025）<span class="highlight">—— 母性迷雾与真相多重反转</span></h2>
+      <img src="https://img9.doubanio.com/view/photo/l/public/p2899434213.webp" alt="误杀3海报" class="poster">
+      <div class="detail">
+        <strong>导演：</strong> 柯汶利<br>
+        <strong>主演：</strong> 系列班底、特别嘉宾<br>
+        <strong>类型：</strong> 犯罪、悬疑、推理
+      </div>
+      <h3>详细剧情梳理</h3>
+      <ol>
+        <li><b>开局悬念：</b>一起扑朔迷离的连环案，嫌疑人众多，每个人都有不在场证明。章鱼“断臂自救”的母性隐喻贯穿全片。</li>
+        <li><b>线索堆叠：</b>警方、媒体、律师、家属多方介入，案发现场的手机、摄像头死角、证物交换、人物眼神等埋下多重谜团。</li>
+        <li><b>推理反转：</b>每次真相浮现都被下一个证据推翻，每个角色都像“章鱼”，以牺牲保全亲人。</li>
+        <li><b>高潮对决：</b>警方与嫌疑人共同还原案发过程，真相呼之欲出却再度陷入迷雾。</li>
+        <li><b>开放结局：</b>影片以“真相其实很简单，只是我们不敢相信”为字幕收尾，观众需自行推理。</li>
+        <li><b>系列彩蛋：</b>前作角色短暂现身，法庭门口对视一笑，形成三部曲的圆环闭合。</li>
+      </ol>
+
+      <h3>剧本/名场面台词</h3>
+      <div class="script">
+【推理对峙】
+警探：所有人都有不在场证明，但真凶一定就在我们中间。
+主角：你们只看到了表面，母亲为了孩子，什么都做得出来。
+
+【章鱼隐喻】
+旁白：雌章鱼孵化幼崽后，为了逃避同类相食，会断臂自救。母性，是世界上最强大的力量。
+
+【结局留白】
+屏幕定格，字幕：“真相其实很简单，只是我们都不敢面对。”
+
+【彩蛋】
+（前作主角与新案相关人物法庭门口点头微笑）
+      </div>
+
+      <h4>多重反转与谜题盘点</h4>
+      <ul>
+        <li>嫌疑人A的不在场证明被B证伪，B的证据又被C推翻，案件如章鱼触手般层层缠绕。</li>
+        <li>案发现场遗落的手机、章鱼玩具、母亲的日记，每一细节都藏着解谜钥匙。</li>
+        <li>观众视角与角色推理同步，极强的代入感和“二刷三刷”乐趣。</li>
+      </ul>
+
+      <h4>深度分析</h4>
+      <div class="analysis">
+        <ul>
+          <li><b>母性主题：</b>从父爱延展到母爱，章鱼断臂的极致牺牲，象征家庭为守护所作的极端选择。</li>
+          <li><b>多重反转：</b>全片谜题密集，逻辑链环环相扣，推理难度升级。</li>
+          <li><b>开放结局：</b>没有标准答案，每个观众都在心中寻找属于自己的真相。</li>
+        </ul>
+      </div>
+
+      <h3>深度影评</h3>
+      <div class="analysis">
+        《误杀3》是系列的结构与主题巅峰，母性迷雾、动物隐喻、多重反转与细节控的盛宴。结局开放虽有争议，但极具再观赏价值。三部曲至此完成，国产悬疑再上新台阶。
+        <br>
+        <b>推荐指数：</b>★★★★☆
+      </div>
+      <div class="quote">
+        “有时，守护比真相更重要。母性与家庭，是人性深处最柔软也最坚硬的力量。”
+      </div>
+    </div>
+
+    <h2>系列整体解析与比较</h2>
+    <div class="analysis">
+      <b>1. 主题演化：</b><br>
+      <ul>
+        <li>第一部强调父爱推理，小人物对抗权力。</li>
+        <li>第二部升华社会批判，父爱与制度的极端碰撞，社会微光成炬。</li>
+        <li>第三部聚焦母性，谜题与反转极致，主题扩展至牺牲与守护的多重维度。</li>
+      </ul>
+      <b>2. 剧情结构与推理难度：</b><br>
+      <ul>
+        <li>一部比一部复杂，三部曲层层递进。</li>
+        <li>第三部极致反转，二刷三刷乐趣拉满。</li>
+      </ul>
+      <b>3. 细节与隐喻：</b><br>
+      <ul>
+        <li>动物隐喻贯穿三部——羊、萤火虫、章鱼。</li>
+        <li>细节控福音，彩蛋、道具、场景呼应丰富。</li>
+      </ul>
+      <b>4. 现实批判与情感共鸣：</b><br>
+      <ul>
+        <li>制度、权力、底层、媒体，现实与情感的双重冲击。</li>
+      </ul>
+    </div>
+
+    <h2>观众评论摘录</h2>
+    <div class="quote">
+      “第一部的推理，第二部的社会批判，第三部的母性迷雾，每一部都像一面镜子，映照生活的无奈与希望。”
+    </div>
+    <div class="quote">
+      “《误杀》系列让我看到普通人的坚韧和家人的力量，每一次反转背后，都是深不可测的人性。”
+    </div>
+    <div class="quote">
+      “三部曲的彩蛋和隐喻设计，值得N刷，国产悬疑终于有了自己的风格。”
+    </div>
+
+    <div class="footer">
+      剧情与分析参考：<a href="https://zhuanlan.zhihu.com/p/15943945419" target="_blank">知乎专栏</a>、<a href="https://www.163.com/dy/article/GS7METQ60517KPSI.html" target="_blank">网易订阅</a>、<a href="https://movie.douban.com/review/14095112/" target="_blank">豆瓣影评</a>等，部分剧本台词为整理与想象归纳，非官方原文。<br>
+      <span style="color:#81d4fa;">如需深入讨论请访问上述链接。</span>
+    </div>
+  </div>
 </body>
 </html>
