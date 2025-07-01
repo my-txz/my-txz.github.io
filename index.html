@@ -3,756 +3,605 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gomoku AI - Advanced Five in a Row Game</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Gomoku AI - Advanced Five-in-a-Row Algorithm</title>
     <style>
         :root {
-            --primary: #3b82f6;
-            --primary-dark: #2563eb;
-            --secondary: #10b981;
-            --dark: #1f2937;
-            --light: #f9fafb;
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --dark: #1d3557;
+            --light: #f8f9fa;
+            --accent: #f72585;
+            --success: #4cc9f0;
         }
-        
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: var(--light);
+            margin: 0;
+            padding: 0;
         }
-        
-        .gradient-bg {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-        
-        .board-cell {
-            width: 32px;
-            height: 32px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .board-cell:hover {
-            background-color: rgba(59, 130, 246, 0.1);
-        }
-        
-        .board-cell::before, .board-cell::after {
-            content: '';
-            position: absolute;
-            background-color: #1e293b;
-        }
-        
-        .board-cell::before {
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 1px;
-        }
-        
-        .board-cell::after {
-            left: 50%;
-            top: 0;
-            width: 1px;
-            height: 100%;
-        }
-        
-        .chess-piece {
-            position: absolute;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            z-index: 10;
-            top: 2px;
-            left: 2px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease;
-        }
-        
-        .chess-black {
-            background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
-        }
-        
-        .chess-white {
-            background: radial-gradient(circle at 30% 30%, #f9fafb, #d1d5db);
-            border: 1px solid #9ca3af;
-        }
-        
-        .mark-point::before {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background-color: #1e293b;
-            border-radius: 50%;
-            z-index: 5;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .last-move::after {
-            content: '';
-            position: absolute;
-            width: 8px;
-            height: 8px;
-            background-color: rgba(239, 68, 68, 0.8);
-            border-radius: 50%;
-            z-index: 15;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
-            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
-            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
-        }
-        
-        .feature-card {
-            transition: all 0.3s ease;
-            border: 1px solid rgba(226, 232, 240, 0.5);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .contact-input {
-            transition: all 0.2s ease;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .contact-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary);
-            transition: all 0.2s ease;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #0d9488;
-            transform: translateY(-1px);
-        }
-        
-        .game-container {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            background-color: #f8f4e9;
-            border-radius: 0.5rem;
-        }
-        
-        .mode-btn.active {
-            background-color: var(--primary);
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
+            padding: 2rem 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-accent {
+            background: var(--accent);
+        }
+        .btn-accent:hover {
+            background: #d91872;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .feature-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .game-container {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(15, 30px);
+            grid-template-rows: repeat(15, 30px);
+            gap: 1px;
+            background: #ddd;
+            margin: 0 auto;
+            width: fit-content;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            background: #f8f8f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .cell:hover {
+            background: #eee;
+        }
+        .cell.black::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: black;
+            border-radius: 50%;
+        }
+        .cell.white::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            border: 1px solid #333;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        textarea {
+            min-height: 120px;
+        }
+        .dark-mode {
+            background-color: #1a1a2e;
+            color: #e6e6e6;
+        }
+        .dark-mode .card,
+        .dark-mode .feature-item,
+        .dark-mode .game-container {
+            background-color: #16213e;
+            color: #e6e6e6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .dark-mode .cell {
+            background: #2a2a3a;
+        }
+        .dark-mode input,
+        .dark-mode textarea,
+        .dark-mode select {
+            background-color: #2a2a3a;
+            color: #e6e6e6;
+            border-color: #444;
+        }
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            z-index: 100;
+        }
+        @media (max-width: 768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            #game-board {
+                grid-template-columns: repeat(15, 20px);
+                grid-template-rows: repeat(15, 20px);
+            }
+            .cell {
+                width: 20px;
+                height: 20px;
+            }
+            .cell.black::after,
+            .cell.white::after {
+                width: 16px;
+                height: 16px;
+            }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center">
-                        <i class="fas fa-chess-board text-2xl text-blue-600 mr-2"></i>
-                        <span class="text-xl font-bold text-gray-900">Gomoku AI</span>
-                    </div>
-                </div>
-                <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
-                    <a href="#features" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Features</a>
-                    <a href="#demo" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Live Demo</a>
-                    <a href="#download" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Download</a>
-                    <a href="#contact" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Contact</a>
-                </div>
+<body>
+    <button class="theme-toggle" id="themeToggle">🌓</button>
+    
+    <header>
+        <div class="container">
+            <h1>Gomoku AI Platform</h1>
+            <p class="subtitle">Advanced Five-in-a-Row Algorithm with Multiple Difficulty Levels</p>
+            <div style="margin-top: 1.5rem;">
+                <a href="#demo" class="btn">Try Easy Mode</a>
+                <a href="#download" class="btn btn-outline">Download Now</a>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Hero Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
-        <div class="text-center">
-            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-                Advanced <span class="text-blue-600">Gomoku AI</span> Experience
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
-                A modern implementation of the classic Five in a Row game with sophisticated AI opponents, beautiful interface, and multiple difficulty levels.
-            </p>
-            <div class="mt-10 flex justify-center space-x-4">
-                <a href="#download" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 transition duration-150 ease-in-out">
-                    Download Now
+    <div class="container">
+        <section class="card">
+            <h2>About This Project</h2>
+            <p>This Gomoku AI implements state-of-the-art algorithms including heuristic evaluation, threat analysis, and simulated annealing to deliver a challenging yet customizable gameplay experience. The AI adapts to different skill levels from beginner to professional, making it ideal for both learning and competitive play.</p>
+            <p>Key features include:</p>
+            <ul>
+                <li>Multiple difficulty levels (Easy, Normal, Difficult, Hell, Professional)</li>
+                <li>Beta modes including AI vs AI and professional duel</li>
+                <li>Advanced threat detection for strategic gameplay</li>
+                <li>Optimized algorithms for responsive performance</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Technical Highlights</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🧠</div>
+                    <h3>Heuristic Evaluation</h3>
+                    <p>Advanced pattern recognition with weighted scoring for different formations (e.g., live fours, double threes) </p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Threat Analysis</h3>
+                    <p>Real-time detection of potential threats including forcing moves and defensive positions </p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Optimized Search</h3>
+                    <p>Combination of simulated annealing and priority-based move selection for efficient decision-making </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="demo" class="game-container">
+            <h2>Easy Mode Demo</h2>
+            <p>Try playing against our simplified AI algorithm below. The AI uses basic heuristic evaluation suitable for beginners.</p>
+            
+            <div id="game-board"></div>
+            
+            <div class="controls">
+                <button id="resetBtn" class="btn btn-outline">Reset Game</button>
+                <button id="hintBtn" class="btn">Show Hint</button>
+            </div>
+            
+            <div id="game-status" style="text-align: center; margin-top: 1rem; font-weight: bold;"></div>
+        </section>
+
+        <section id="download" class="card">
+            <h2>Download & Installation</h2>
+            <p>Get the full experience with our desktop application featuring all difficulty levels and advanced features:</p>
+            
+            <div style="margin: 1.5rem 0;">
+                <a href="https://github.com/my-txz/AI-/releases/download/%E9%87%8A%E6%94%BE%E7%89%88%E6%9C%AC/AI.4.exe" class="btn" style="margin-right: 1rem;">
+                    Download Latest Version
                 </a>
-                <a href="#demo" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10 transition duration-150 ease-in-out">
-                    Try Easy Mode(Beta)
+                <a href="https://github.com/my-txz/AI-/releases/" class="btn btn-outline">
+                    View All Releases
                 </a>
             </div>
-        </div>
+            
+            <h3>System Requirements</h3>
+            <ul>
+                <li>Windows 7 or later</li>
+                <li>Python 3.6+ (included in installer)</li>
+                <li>2GB RAM minimum</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Project Information</h2>
+            <p>This project is open-source and available on GitHub. We welcome contributions and feedback from the community.</p>
+            
+            <div style="margin: 1.5rem 0;">
+                <a href="https://github.com/my-txz/AI-" class="btn" style="margin-right: 1rem;">
+                    View on GitHub
+                </a>
+                <a href="https://github.com/my-txz/AI-/issues" class="btn btn-outline">
+                    Report Issues
+                </a>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Contact & Feedback</h2>
+            <p>Have questions or suggestions? Reach out to us through email or submit issues directly to our GitHub repository.</p>
+            
+            <div class="form-group">
+                <label for="feedback-name">Your Name</label>
+                <input type="text" id="feedback-name" placeholder="John Doe">
+            </div>
+            
+            <div class="form-group">
+                <label for="feedback-email">Email Address</label>
+                <input type="email" id="feedback-email" placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="feedback-message">Your Message</label>
+                <textarea id="feedback-message" placeholder="Your feedback or questions..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="feedback-type">Message Type</label>
+                <select id="feedback-type">
+                    <option value="feedback">General Feedback</option>
+                    <option value="bug">Bug Report</option>
+                    <option value="feature">Feature Request</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button id="emailBtn" class="btn btn-accent">Send via Email</button>
+                <button id="githubIssueBtn" class="btn">Submit as GitHub Issue</button>
+            </div>
+        </section>
     </div>
 
-    <!-- Features Section -->
-    <div id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                Powerful Features
-            </h2>
-            <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
-                Experience the next generation of Gomoku with these advanced capabilities
-            </p>
-        </div>
-        
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <!-- Feature 1 -->
-            <div class="feature-card bg-white p-6 rounded-lg">
-                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mb-4">
-                    <i class="fas fa-brain text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Advanced AI Opponents</h3>
-                <p class="text-gray-600">
-                    Multiple difficulty levels from Easy to Professional, each with unique algorithms including Minimax, Alpha-Beta pruning, and Monte Carlo Tree Search.
-                </p>
-            </div>
-            
-            <!-- Feature 2 -->
-            <div class="feature-card bg-white p-6 rounded-lg">
-                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-green-500 text-white mb-4">
-                    <i class="fas fa-laptop-code text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Modern Interface</h3>
-                <p class="text-gray-600">
-                    Beautiful, responsive design with smooth animations and intuitive controls that work on any device.
-                </p>
-            </div>
-            
-            <!-- Feature 3 -->
-            <div class="feature-card bg-white p-6 rounded-lg">
-                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-500 text-white mb-4">
-                    <i class="fas fa-cogs text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Customizable Settings</h3>
-                <p class="text-gray-600">
-                    Adjust board size, game rules, and AI behavior to create your perfect Gomoku experience.
-                </p>
-            </div>
-            
-            <!-- Feature 4 -->
-            <div class="feature-card bg-white p-6 rounded-lg">
-                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-red-500 text-white mb-4">
-                    <i class="fas fa-history text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Game Analysis</h3>
-                <p class="text-gray-600">
-                    Review your games with move-by-move history and AI suggestions for improvement.
-                </p>
-            </div>
-            
-            <!-- Feature 5 -->
-            <div class="feature-card bg-white p-6 rounded-lg">
-                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-yellow-500 text-white mb-4">
-                    <i class="fas fa-users text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Multiplayer Modes</h3>
-                <p class="text-gray-600">
-                    Play against the AI or challenge friends in local multiplayer mode.
-                </p>
-            </div>
-            
-            <!-- Feature 6 -->
-            <div class="feature-card bg-white p-6 rounded-lg">
-                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mb-4">
-                    <i class="fas fa-trophy text-xl"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Achievements</h3>
-                <p class="text-gray-600">
-                    Unlock achievements as you progress and master different difficulty levels.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Live Demo Section -->
-    <div id="demo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 bg-white">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                Try <span class="text-blue-600">Easy Mode</span> in Your Browser
-            </h2>
-            <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
-                Experience a simplified version of our Gomoku AI right in your web browser
-                Please use the latest Google browser kernel, otherwise you may not be able to play
-            </p>
-        </div>
-        
-        <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Game Controls -->
-            <div class="w-full lg:w-1/4 bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Game Settings</h3>
-                
-                <div class="mb-6">
-                    <p class="text-sm font-medium text-gray-700 mb-2">Game Mode</p>
-                    <div class="flex space-x-2">
-                        <button id="pve-mode" class="mode-btn flex-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md">
-                            Player vs AI
-                        </button>
-                        <button id="pvp-mode" class="mode-btn flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
-                            Player vs Player
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <p class="text-sm font-medium text-gray-700 mb-2">AI Difficulty</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="easy-mode" class="mode-btn active px-3 py-2 bg-green-500 text-white text-sm font-medium rounded-md">
-                            Easy
-                        </button>
-                        <button id="medium-mode" class="mode-btn px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
-                            Medium
-                        </button>
-                        <button id="hard-mode" class="mode-btn px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
-                            Hard
-                        </button>
-                        <button id="pro-mode" class="mode-btn px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
-                            Pro
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="mb-6">
-                    <p class="text-sm font-medium text-gray-700 mb-2">Current Status</p>
-                    <div id="game-status" class="p-2 bg-gray-100 rounded-md text-center text-sm font-medium">
-                        Black's Turn
-                    </div>
-                </div>
-                
-                <div class="flex space-x-2">
-                    <button id="undo-btn" class="flex-1 px-3 py-2 bg-yellow-500 text-white text-sm font-medium rounded-md hover:bg-yellow-600 disabled:opacity-50">
-                        Undo
-                    </button>
-                    <button id="restart-btn" class="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">
-                        Restart
-                    </button>
-                </div>
-                
-                <div class="mt-8">
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Game Rules</h3>
-                    <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
-                        <li>Black plays first, alternating turns</li>
-                        <li>First to get 5 in a row wins</li>
-                        <li>Lines can be horizontal, vertical or diagonal</li>
-                        <li>No restrictions on moves (standard Gomoku rules)</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Game Board -->
-            <div class="w-full lg:w-2/4 game-container p-6">
-                <div id="board" class="grid grid-cols-15 gap-0 mx-auto w-max"></div>
-            </div>
-            
-            <!-- Game History -->
-            <div class="w-full lg:w-1/4 bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Move History</h3>
-                <div id="history-container" class="h-96 overflow-y-auto pr-2">
-                    <div id="history-list" class="space-y-2"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Download Section -->
-    <div id="download" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
-            <div class="px-6 py-8 sm:p-10 sm:pb-6">
-                <div class="text-center">
-                    <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                        Download <span class="text-blue-600">Gomoku AI</span>
-                    </h2>
-                    <p class="mt-4 text-xl text-gray-600">
-                        Get the full version with all features and difficulty levels
-                    </p>
-                </div>
-                
-                <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Main Program</h3>
-                        <p class="text-gray-600 mb-4">
-                            Download the latest stable version of Gomoku AI for Windows.
-                        </p>
-                        <a href="https://github.com/my-txz/AI-/releases/download/%E9%87%8A%E6%94%BE%E7%89%88%E6%9C%AC/AI.4.exe" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                            <i class="fas fa-download mr-2"></i> Download Latest (v4.0)
-                        </a>
-                        <p class="mt-3 text-sm text-gray-500">
-                            File size: ~8MB | Windows 7/10/11
-                        </p>
-                    </div>
-                    
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Other Versions</h3>
-                        <p class="text-gray-600 mb-4">
-                            Browse previous releases and alternative versions.
-                        </p>
-                        <a href="https://github.com/my-txz/AI-/releases/" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-700 bg-blue-100 hover:bg-blue-200">
-                            <i class="fas fa-archive mr-2"></i> View All Releases
-                        </a>
-                        <p class="mt-3 text-sm text-gray-500">
-                            Includes beta versions and historical releases
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="mt-10 bg-blue-50 p-6 rounded-lg">
-                    <h3 class="text-lg font-medium text-blue-800 mb-2">System Requirements</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm font-medium text-blue-700">Minimum</p>
-                            <ul class="text-sm text-blue-600 space-y-1 mt-1">
-                                <li>Windows 7 or later</li>
-                                <li>1GHz processor</li>
-                                <li>512MB RAM</li>
-                                <li>50MB disk space</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-blue-700">Recommended</p>
-                            <ul class="text-sm text-blue-600 space-y-1 mt-1">
-                                <li>Windows 10 or later</li>
-                                <li>2GHz dual-core processor</li>
-                                <li>2GB RAM</li>
-                                <li>100MB disk space</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                <div class="text-center">
-                    <a href="https://github.com/my-txz/AI-" class="text-base font-medium text-blue-600 hover:text-blue-500">
-                        Visit Project Page on GitHub <span aria-hidden="true">→</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Contact Section -->
-    <div id="contact" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 bg-white">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-                Contact <span class="text-blue-600">Us</span>
-            </h2>
-            <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
-                Have questions, suggestions, or found a bug? We'd love to hear from you!
-            </p>
-        </div>
-        
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <!-- Contact Form -->
-            <div class="bg-gray-50 p-6 rounded-lg">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Send Us a Message</h3>
-                <form id="contact-form" class="space-y-4">
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">Your Name</label>
-                        <input type="text" id="name" name="name" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none">
-                    </div>
-                    
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                        <input type="email" id="email" name="email" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none" required>
-                    </div>
-                    
-                    <div>
-                        <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
-                        <select id="subject" name="subject" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none">
-                            <option value="question">Question</option>
-                            <option value="suggestion">Suggestion</option>
-                            <option value="bug">Bug Report</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
-                        <textarea id="message" name="message" rows="4" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none" required></textarea>
-                    </div>
-                    
-                    <div class="flex space-x-3">
-                        <button type="submit" class="btn-primary px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
-                            Send via Outlook
-                        </button>
-                        <button type="button" id="github-issue-btn" class="btn-secondary px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
-                            Create GitHub Issue
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <!-- Additional Contact Info -->
-            <div class="space-y-6">
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Project Information</h3>
-                    <p class="text-gray-600">
-                        Gomoku AI is an open-source project developed to showcase advanced game AI techniques in the classic Five in a Row game.
-                    </p>
-                </div>
-                
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Report Issues</h3>
-                    <p class="text-gray-600 mb-2">
-                        Found a bug or have a technical issue? You can directly create an issue on our GitHub repository:
-                    </p>
-                    <a href="https://github.com/my-txz/AI-/issues" class="inline-flex items-center text-blue-600 hover:text-blue-500">
-                        <i class="fab fa-github mr-2"></i> GitHub Issues Page
-                    </a>
-                </div>
-                
-                <div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Contribute</h3>
-                    <p class="text-gray-600 mb-2">
-                        Interested in contributing to the project? Check out our GitHub repository:
-                    </p>
-                    <a href="https://github.com/my-txz/AI-" class="inline-flex items-center text-blue-600 hover:text-blue-500">
-                        <i class="fab fa-github mr-2"></i> GitHub Repository
-                    </a>
-                </div>
-                
-                <div class="pt-4 border-t border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Quick Links</h3>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="#features" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Features</a>
-                        <a href="#demo" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Live Demo</a>
-                        <a href="#download" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Download</a>
-                        <a href="https://github.com/my-txz/AI-/blob/main/README.md" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Documentation</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800">
-        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                    <h3 class="text-white text-lg font-medium mb-4">Gomoku AI</h3>
-                    <p class="text-gray-300">
-                        An advanced implementation of the classic Five in a Row game with sophisticated AI opponents.
-                    </p>
-                </div>
-                
-                <div>
-                    <h3 class="text-white text-lg font-medium mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#features" class="text-gray-300 hover:text-white">Features</a></li>
-                        <li><a href="#demo" class="text-gray-300 hover:text-white">Live Demo</a></li>
-                        <li><a href="#download" class="text-gray-300 hover:text-white">Download</a></li>
-                        <li><a href="#contact" class="text-gray-300 hover:text-white">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h3 class="text-white text-lg font-medium mb-4">Connect</h3>
-                    <div class="flex space-x-4">
-                        <a href="https://github.com/my-txz/AI-" class="text-gray-300 hover:text-white">
-                            <i class="fab fa-github text-xl"></i>
-                        </a>
-                    </div>
-                    <p class="mt-4 text-gray-300">
-                        © 2025 Gomoku AI Project. All rights reserved.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Game JS -->
     <script>
-        // Initialize the game board
-        const BOARD_SIZE = 15;
-        const EMPTY = 0;
-        const BLACK = 1;
-        const WHITE = 2;
+        // Dark mode toggle
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            themeToggle.textContent = document.body.classList.contains('dark-mode') ? '🌞' : '🌓';
+        });
+
+        // Gomoku game implementation
+        const boardSize = 15;
+        let board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
+        let currentPlayer = 1; // 1 for human (black), 2 for AI (white)
+        let gameOver = false;
         
-        let currentPlayer = BLACK;
-        let gameBoard = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(EMPTY));
-        let gameHistory = [];
-        let gameMode = 'pve';
-        let aiDifficulty = 'easy';
-        let gameActive = true;
+        // Initialize game board
+        const gameBoard = document.getElementById('game-board');
+        const gameStatus = document.getElementById('game-status');
         
-        // DOM elements
-        const boardElement = document.getElementById('board');
-        const gameStatusElement = document.getElementById('game-status');
-        const historyListElement = document.getElementById('history-list');
-        const undoBtn = document.getElementById('undo-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        
-        // Mode buttons
-        const pveModeBtn = document.getElementById('pve-mode');
-        const pvpModeBtn = document.getElementById('pvp-mode');
-        const easyModeBtn = document.getElementById('easy-mode');
-        const mediumModeBtn = document.getElementById('medium-mode');
-        const hardModeBtn = document.getElementById('hard-mode');
-        const proModeBtn = document.getElementById('pro-mode');
-        
-        // Initialize the board
-        function initializeBoard() {
-            boardElement.innerHTML = '';
-            
-            // Create board cells
-            for (let row = 0; row < BOARD_SIZE; row++) {
-                for (let col = 0; col < BOARD_SIZE; col++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'board-cell relative';
-                    
-                    // Add mark points at key positions
-                    if ((row === 3 || row === 7 || row === 11) && (col === 3 || col === 7 || col === 11)) {
-                        cell.classList.add('mark-point');
-                    }
-                    
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    cell.addEventListener('click', () => handleCellClick(row, col));
-                    boardElement.appendChild(cell);
-                }
+        for (let i = 0; i < boardSize; i++) {
+            for (let j = 0; j < boardSize; j++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.addEventListener('click', handleCellClick);
+                gameBoard.appendChild(cell);
             }
-            
-            updateGameStatus();
         }
         
-        // Handle cell click
-        function handleCellClick(row, col) {
-            if (!gameActive || gameBoard[row][col] !== EMPTY) return;
+        function handleCellClick(e) {
+            if (gameOver) return;
             
-            // Place the piece
-            placePiece(row, col, currentPlayer);
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
             
-            // Check for win
-            if (checkWin(row, col, currentPlayer)) {
-                gameActive = false;
-                const winner = currentPlayer === BLACK ? 'Black' : 'White';
-                gameStatusElement.textContent = `${winner} wins!`;
+            if (board[row][col] !== 0) return;
+            
+            // Human move
+            board[row][col] = currentPlayer;
+            e.target.classList.add(currentPlayer === 1 ? 'black' : 'white');
+            
+            if (checkWin(board, currentPlayer)) {
+                gameStatus.textContent = currentPlayer === 1 ? 'You win!' : 'AI wins!';
+                gameOver = true;
                 return;
             }
             
-            // Check for draw
-            if (isBoardFull()) {
-                gameActive = false;
-                gameStatusElement.textContent = 'Game ended in a draw!';
+            if (isBoardFull(board)) {
+                gameStatus.textContent = 'Game ended in a draw!';
+                gameOver = true;
                 return;
             }
             
-            // Switch player
-            currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
-            updateGameStatus();
+            // Switch to AI
+            currentPlayer = 3 - currentPlayer; // Switch between 1 and 2
+            gameStatus.textContent = 'AI is thinking...';
             
-            // If in PvE mode and it's AI's turn
-            if (gameMode === 'pve' && currentPlayer === WHITE) {
-                setTimeout(() => {
-                    makeAIMove();
-                }, 500);
-            }
-        }
-        
-        // Place a piece on the board
-        function placePiece(row, col, player) {
-            gameBoard[row][col] = player;
-            gameHistory.push({row, col, player});
-            updateBoardUI();
-            addToHistory(row, col, player);
-        }
-        
-        // Update the board UI
-        function updateBoardUI() {
-            // Clear all pieces
-            document.querySelectorAll('.chess-piece').forEach(el => el.remove());
-            document.querySelectorAll('.last-move').forEach(el => el.classList.remove('last-move'));
-            
-            // Add all pieces
-            for (let row = 0; row < BOARD_SIZE; row++) {
-                for (let col = 0; col < BOARD_SIZE; col++) {
-                    if (gameBoard[row][col] !== EMPTY) {
-                        const cell = document.querySelector(`.board-cell[data-row="${row}"][data-col="${col}"]`);
-                        const piece = document.createElement('div');
-                        piece.className = `chess-piece ${gameBoard[row][col] === BLACK ? 'chess-black' : 'chess-white'}`;
-                        cell.appendChild(piece);
-                    }
-                }
-            }
-            
-            // Highlight last move
-            if (gameHistory.length > 0) {
-                const lastMove = gameHistory[gameHistory.length - 1];
-                const lastCell = document.querySelector(`.board-cell[data-row="${lastMove.row}"][data-col="${lastMove.col}"]`);
-                lastCell.classList.add('last-move');
-            }
-        }
-        
-        // Add move to history
-        function addToHistory(row, col, player) {
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item p-2 rounded cursor-pointer';
-            historyItem.innerHTML = `
-                <span class="inline-block w-6 h-6 rounded-full ${player === BLACK ? 'bg-black' : 'bg-white border border-gray-300'} mr-2"></span>
-                <span>Move ${gameHistory.length}: ${player === BLACK ? 'Black' : 'White'} at (${String.fromCharCode(65 + col)}${row + 1})</span>
-            `;
-            historyItem.addEventListener('click', () => {
-                // Highlight the move on the board
-                document.querySelectorAll('.history-item').forEach(el => el.style.backgroundColor = '');
-                historyItem.style.backgroundColor = '#f3f4f6';
+            // AI move (simple heuristic for easy mode)
+            setTimeout(() => {
+                const aiMove = getAIMove(board);
+                board[aiMove.row][aiMove.col] = currentPlayer;
+                const aiCell = document.querySelector(`.cell[data-row="${aiMove.row}"][data-col="${aiMove.col}"]`);
+                aiCell.classList.add('white');
                 
-                // You could implement move navigation here
+                if (checkWin(board, currentPlayer)) {
+                    gameStatus.textContent = 'AI wins!';
+                    gameOver = true;
+                    return;
+                }
+                
+                if (isBoardFull(board)) {
+                    gameStatus.textContent = 'Game ended in a draw!';
+                    gameOver = true;
+                    return;
+                }
+                
+                currentPlayer = 3 - currentPlayer;
+                gameStatus.textContent = 'Your turn';
+            }, 500);
+        }
+        
+        // Simple AI for easy mode
+        function getAIMove(board) {
+            // Check for immediate win
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if (board[i][j] === 0) {
+                        board[i][j] = 2;
+                        if (checkWin(board, 2)) {
+                            board[i][j] = 0;
+                            return { row: i, col: j };
+                        }
+                        board[i][j] = 0;
+                    }
+                }
+            }
+            
+            // Block human win
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if (board[i][j] === 0) {
+                        board[i][j] = 1;
+                        if (checkWin(board, 1)) {
+                            board[i][j] = 0;
+                            return { row: i, col: j };
+                        }
+                        board[i][j] = 0;
+                    }
+                }
+            }
+            
+            // Simple heuristic: prefer center and existing pieces
+            const moves = [];
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if (board[i][j] === 0) {
+                        let score = 0;
+                        
+                        // Prefer center
+                        const centerDist = Math.sqrt(Math.pow(i - boardSize/2, 2) + Math.pow(j - boardSize/2, 2));
+                        score += (boardSize - centerDist) * 2;
+                        
+                        // Prefer near existing pieces
+                        for (let di = -2; di <= 2; di++) {
+                            for (let dj = -2; dj <= 2; dj++) {
+                                const ni = i + di;
+                                const nj = j + dj;
+                                if (ni >= 0 && ni < boardSize && nj >= 0 && nj < boardSize && board[ni][nj] !== 0) {
+                                    score += board[ni][nj] === 2 ? 3 : 1;
+                                }
+                            }
+                        }
+                        
+                        moves.push({ row: i, col: j, score });
+                    }
+                }
+            }
+            
+            // Sort by score and pick the best move
+            moves.sort((a, b) => b.score - a.score);
+            return moves[0];
+        }
+        
+        function checkWin(board, player) {
+            const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+            
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if (board[i][j] !== player) continue;
+                    
+                    for (const [di, dj] of directions) {
+                        let count = 1;
+                        
+                        for (let k = 1; k < 5; k++) {
+                            const ni = i + di * k;
+                            const nj = j + dj * k;
+                            
+                            if (ni < 0 || ni >= boardSize || nj < 0 || nj >= boardSize || board[ni][nj] !== player) {
+                                break;
+                            }
+                            
+                            count++;
+                        }
+                        
+                        if (count >= 5) return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+        
+        function isBoardFull(board) {
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if (board[i][j] === 0) return false;
+                }
+            }
+            return true;
+        }
+        
+        // Reset game
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            board = Array(boardSize).fill().map(() => Array(boardSize).fill(0));
+            currentPlayer = 1;
+            gameOver = false;
+            gameStatus.textContent = '';
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('black', 'white');
             });
-            historyListElement.prepend(historyItem);
-        }
+        });
         
-        // Update game status display
-        function updateGameStatus() {
-            if (gameActive) {
-                gameStatusElement.textContent = `${currentPlayer === BLACK ? 'Black' : 'White'}'s Turn`;
-                gameStatusElement.className = `p-2 bg-${currentPlayer === BLACK ? 'gray-800' : 'gray-100'} rounded-md text-center text-sm font-medium text-${currentPlayer === BLACK ? 'white' : 'gray-800'}`;
-            }
-        }
-        
-        // Check for win condition
-        function checkWin(row, col, player) {
-            const directions = [
-                [0, 1],   // horizontal
-                [1, 0],   // vertical
-                [1, 1],   // diagonal down-right
-                [1, -1]   // diagonal down-left
-            ];
+        // Show hint
+        document.getElementById('hintBtn').addEventListener('click', () => {
+            if (gameOver || currentPlayer !== 1) return;
             
-            for (const [dx, dy] of directions) {
-                let count = 1;
-                
-                // Check in positive direction
-                for (let i = 1; i < 5; i++) {
-                    const newRow = row + i * dx;
-                    const newCol = col + i * dy;
-                    if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE || 
-                        gameBoard[newRow][newCol] !== player) {
-                        break;
-                    }
-                    count++;
-                }
-                
-                // Check in negative direction
-                for (let i = 1; i < 5; i++) {
-                    const newRow = row - i * dx;
-                    const newCol = col - i * dy;
-                    if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 ||
+            const hintMove = getAIMove(board);
+            const hintCell = document.querySelector(`.cell[data-row="${hintMove.row}"][data-col="${hintMove.col}"]`);
+            
+            hintCell.style.boxShadow = '0 0 0 3px var(--accent)';
+            setTimeout(() => {
+                hintCell.style.boxShadow = '';
+            }, 2000);
+        });
+        
+        // Email feedback
+        document.getElementById('emailBtn').addEventListener('click', () => {
+            const name = document.getElementById('feedback-name').value;
+            const email = document.getElementById('feedback-email').value;
+            const message = document.getElementById('feedback-message').value;
+            const type = document.getElementById('feedback-type').value;
+            
+            if (!name || !email || !message) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const subject = `Gomoku AI Feedback: ${type}`;
+            const body = `Name: ${name}%0D%0AEmail: ${email}%0D%0A%0D%0A${message}`;
+            
+            window.open(`mailto:your-email@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+        });
+        
+        // GitHub issue (simplified - would need backend for actual implementation)
+        document.getElementById('githubIssueBtn').addEventListener('click', () => {
+            const name = document.getElementById('feedback-name').value;
+            const email = document.getElementById('feedback-email').value;
+            const message = document.getElementById('feedback-message').value;
+            const type = document.getElementById('feedback-type').value;
+            
+            if (!name || !message) {
+                alert('Please fill in name and message');
+                return;
+            }
+            
+            const title = `[${type}] ${name.substring(0, 20)}...`;
+            const body = `From: ${name} <${email}>\n\n${message}`;
+            
+            window.open(`https://github.com/my-txz/AI-/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`, '_blank');
+        });
+    </script>
+</body>
+</html>
