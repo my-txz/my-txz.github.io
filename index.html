@@ -1,1158 +1,757 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>高级简易论坛</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4f4f4; }
-    .container { max-width: 980px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 5px; }
-    h1, h2, h3 { color: #333; }
-    .login, .register, .post-form, .reply-form, .search-form, .settings-form, .profile-form, .admin-panel { margin-bottom: 20px; }
-    .post, .reply { border: 1px solid #ccc; border-radius: 4px; padding: 12px; margin-bottom: 10px; background: #fafafa; }
-    .post .title { font-size: 1.2em; font-weight: bold; }
-    .post .meta { color: #888; font-size: 0.9em; }
-    .reply-list { margin-left: 24px; }
-    .error { color: red; }
-    .success { color: green; }
-    .nav { margin-bottom: 20px; }
-    .nav button { margin-right: 7px; }
-    label { display: block; margin-top: 7px; }
-    input[type="text"], input[type="password"], input[type="email"], textarea, select {
-      width: 100%; padding: 7px; margin-top: 5px; box-sizing: border-box;
-    }
-    textarea { resize: vertical; }
-    .admin-btn { color: #c00; font-size: 0.95em; background: none; border: none; cursor: pointer; }
-    .sticky { background: #ffeeba; }
-    .pagination { margin: 16px 0; text-align: center; }
-    .pagination button { margin: 0 2px; }
-    .like-btn, .fav-btn { color: #06c; cursor: pointer; background: none; border: none; }
-    .liked, .faved { color: #d00; }
-    .user-list { margin-top: 18px; }
-    .user-list th, .user-list td { padding: 4px 8px; }
-    .announcement { border: 1px solid #bcdff1; background: #eaf6fb; padding: 10px; color: #2077a7; border-radius: 4px; margin-bottom: 18px; }
-    .draft-btn { color: #888; background: none; border: none; cursor: pointer; font-size: 0.92em; }
-    .draft-list { margin: 10px 0 25px 0; }
-    .draft-list li { margin-bottom: 3px; }
-    .category-label { display: inline-block; border-radius: 3px; font-size: 0.95em; background: #e1eaff; color: #397;
-      padding: 0 4px; margin-right: 6px;
-    }
-    .settings-form { background: #f9f9f9; border-radius: 5px; padding: 8px 15px; border: 1px solid #ddd; }
-    .dark-mode { background: #222 !important; color: #eee !important; }
-    .dark-mode .container { background: #23272c !important; color: #eee !important; }
-    .dark-mode .post, .dark-mode .reply { background: #282c34 !important; border-color: #333; color: #fff !important; }
-    .dark-mode .sticky { background: #3a3e43 !important; }
-    .dark-mode .announcement { background: #283848 !important; color: #86c5ff !important; border-color: #3c4d61; }
-    .dark-mode input, .dark-mode textarea, .dark-mode select { background: #3a3e43; color: #eee; border: 1px solid #444; }
-    .dark-mode .admin-btn, .dark-mode .like-btn, .dark-mode .fav-btn, .dark-mode .draft-btn { color: #ffa07a !important; }
-    .dark-mode .category-label { background: #335 !important; color: #8f8 !important; }
-    .level-badge { display: inline-block; border-radius: 8px; padding: 0 10px; font-size: 0.95em; color: #fff; margin-left: 7px; }
-    .level-1 { background: #888; }
-    .level-2 { background: #3498db; }
-    .level-3 { background: #2ecc71; }
-    .level-4 { background: #e67e22; }
-    .level-5 { background: #e74c3c; }
-    .report-btn { color: #b77; font-size: 0.9em; background: none; border: none; cursor: pointer; }
-    .report-form { padding: 8px 0; }
-    .report-list { margin: 12px 0; }
-    .profile-avatar { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 1.5px solid #eee; background: #f3f3f3; }
-    .fav-btn.faved { color: #e67e22; }
-    .profile-info { display: flex; align-items: center; gap: 20px; margin-bottom: 18px; }
-    .profile-details { flex: 1; }
-    .video-attach { max-width: 350px; display: block; margin: 8px 0; border-radius: 8px; }
-    .color-btn-group button { margin-right: 3px; margin-top: 3px; }
-    .profile-form input[type="file"] { width: auto; }
-    .ban-btn { color: #fff; background: #e74c3c; border: none; border-radius: 3px; font-size: 0.92em; padding: 1px 8px; cursor: pointer; }
-    .admin-panel { border: 1px solid #ccc; padding: 10px; margin-top: 20px; border-radius: 5px; background: #f0f0f0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gomoku AI - Advanced Five in a Row Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --dark: #1f2937;
+            --light: #f9fafb;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+        
+        .board-cell {
+            width: 32px;
+            height: 32px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .board-cell:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+        
+        .board-cell::before, .board-cell::after {
+            content: '';
+            position: absolute;
+            background-color: #1e293b;
+        }
+        
+        .board-cell::before {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+        }
+        
+        .board-cell::after {
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+        }
+        
+        .chess-piece {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            z-index: 10;
+            top: 2px;
+            left: 2px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+        }
+        
+        .chess-black {
+            background: radial-gradient(circle at 30% 30%, #4b5563, #111827);
+        }
+        
+        .chess-white {
+            background: radial-gradient(circle at 30% 30%, #f9fafb, #d1d5db);
+            border: 1px solid #9ca3af;
+        }
+        
+        .mark-point::before {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #1e293b;
+            border-radius: 50%;
+            z-index: 5;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .last-move::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: rgba(239, 68, 68, 0.8);
+            border-radius: 50%;
+            z-index: 15;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.7; }
+        }
+        
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .contact-input {
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .contact-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #0d9488;
+            transform: translateY(-1px);
+        }
+        
+        .game-container {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            background-color: #f8f4e9;
+            border-radius: 0.5rem;
+        }
+        
+        .mode-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+    </style>
 </head>
-<body id="body">
-  <div class="container">
-    <h1>高级简易论坛</h1>
-    <div id="nav" class="nav"></div>
-    <div id="main"></div>
-  </div>
-  <script>
-    // --- Utility functions ---
-    function escapeHtml(str) {
-      if (!str) return "";
-      return str.replace(/[&<>"]/g, function(c) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
-      });
-    }
-    function filterXSS(str) {
-      return str.replace(/<(\s*script|iframe|object|embed|style|link|form|input|button|svg|img)[^>]*?>.*?<\/\1\s*>/gi, '')
-                .replace(/<(script|iframe|object|embed|style|link|form|input|button|svg|img)[^>]*?\/?>/gi, '');
-    }
-    // --- Rich text formatting ---
-    function formatContent(str) {
-      if (!str) return '';
-      str = escapeHtml(str);
-      str = str.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
-      str = str.replace(/\[color=([#\w]+)\]([\s\S]+?)\[\/color\]/g, '<span style="color:$1;">$2</span>');
-      return str.replace(/\n/g, '<br>');
-    }
-    function insertAtCursor(field, text) {
-      if (document.selection) {
-        field.focus();
-        var sel = document.selection.createRange();
-        sel.text = text;
-      } else if (field.selectionStart || field.selectionStart === 0) {
-        let start = field.selectionStart;
-        let end = field.selectionEnd;
-        field.value = field.value.substring(0, start) + text + field.value.substring(end);
-        field.selectionStart = field.selectionEnd = start + text.length;
-      } else { field.value += text; }
-      field.focus();
-    }
-    function todayStr() {
-      let d = new Date();
-      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    }
-    // --- Level system ---
-    function calcLevel(score, role) {
-      if (role === "admin") return 5;
-      if (score >= 1000) return 5;
-      if (score >= 666) return 4;
-      if (score >= 300) return 3;
-      if (score >= 100) return 2;
-      return 1;
-    }
-    function levelBadge(level) {
-      let txts = ['Lv.1', 'Lv.2', 'Lv.3', 'Lv.4', 'Lv.5'];
-      let cls = ['level-1', 'level-2', 'level-3', 'level-4', 'level-5'];
-      return `<span class="level-badge ${cls[level-1]}">${txts[level-1]}</span>`;
-    }
-    // --- Sensitive words detection ---
-    var sensitiveWords = ["脏话", "政治", "敏感", "badword"];
-    function checkSensitive(text) {
-      let found = sensitiveWords.filter(word => text.indexOf(word) !== -1);
-      return found.length ? found : null;
-    }
-    // --- Data persistence using localStorage with simple obfuscation ---
-    function encodeData(data) {
-      return btoa(JSON.stringify(data));
-    }
-    function decodeData(str, defaultVal) {
-      try { return JSON.parse(atob(str)); }
-      catch(e) { return defaultVal; }
-    }
-    // --- Global Data Persistence ---
-    let defaultUsers = {
-      "master": {
-        password: "123456",
-        nickname: "论坛管理员",
-        role: "admin",
-        email: "admin@forum.com",
-        avatar: "",
-        regDate: todayStr(),
-        lastSign: "",
-        score: 1000,
-        fav: [],
-        banInfo: { accessBanUntil: 0, chatBanUntil: 0 }
-      }
-    };
-    let users = decodeData(localStorage.getItem('obf_users'), defaultUsers);
-    let posts = decodeData(localStorage.getItem('obf_posts'), []);
-    let currentUser = JSON.parse(localStorage.getItem('obf_current_user') || 'null');
-    let forumSettings = decodeData(localStorage.getItem('obf_settings'), 
-      {"pageSize":5, "darkMode":false, "categories":["综合", "技术", "灌水"]});
-    let announcement = localStorage.getItem('obf_announcement') || '欢迎来到高级简易论坛！管理员(master)可在“论坛设置”中发布公告。';
-    let drafts = decodeData(localStorage.getItem('obf_drafts'), {});
-    let reports = decodeData(localStorage.getItem('obf_reports'), []);
-    let traffic = decodeData(localStorage.getItem('obf_traffic'), {});
-    // Ensure posts and users structure
-    posts.forEach(p => {
-      if (typeof p.views !== 'number') p.views = 0;
-      if (!Array.isArray(p.likes)) p.likes = [];
-      if (!Array.isArray(p.favs)) p.favs = [];
-      if (!Array.isArray(p.replies)) p.replies = [];
-      if (typeof p.sticky !== 'boolean') p.sticky = false;
-      if (typeof p.category !== 'string') p.category = forumSettings.categories[0];
-      if (!Array.isArray(p.attachments)) p.attachments = [];
-      if (typeof p.draft !== 'boolean') p.draft = false;
-      if (!Array.isArray(p.reports)) p.reports = [];
-    });
-    Object.keys(users).forEach(u => {
-      let user = users[u];
-      if (!user.email) user.email = '';
-      if (!user.avatar) user.avatar = '';
-      if (!user.regDate) user.regDate = todayStr();
-      if (!user.lastSign) user.lastSign = '';
-      if (!user.score) user.score = (u === 'master' ? 1000 : 0);
-      if (!Array.isArray(user.fav)) user.fav = [];
-      if (!user.banInfo) user.banInfo = { accessBanUntil: 0, chatBanUntil: 0 };
-    });
-    function save() {
-      localStorage.setItem('obf_users', encodeData(users));
-      localStorage.setItem('obf_posts', encodeData(posts));
-      localStorage.setItem('obf_current_user', JSON.stringify(currentUser));
-      localStorage.setItem('obf_settings', encodeData(forumSettings));
-      localStorage.setItem('obf_announcement', announcement);
-      localStorage.setItem('obf_drafts', encodeData(drafts));
-      localStorage.setItem('obf_reports', encodeData(reports));
-      localStorage.setItem('obf_traffic', encodeData(traffic));
-    }
-    // --- Dark Mode ---
-    function updateDarkMode() {
-      document.getElementById('body').className = forumSettings.darkMode ? 'dark-mode' : '';
-    }
-    updateDarkMode();
-    // --- Traffic Update ---
-    function updateTraffic() {
-      let today = todayStr();
-      if (!traffic[today]) { traffic[today] = { count: 0, ips: [] }; }
-      traffic[today].count++;
-      let fakeIP = "192.168." + Math.floor(Math.random() * 256) + "." + Math.floor(Math.random() * 256);
-      if (traffic[today].ips.indexOf(fakeIP) === -1) { traffic[today].ips.push(fakeIP); }
-      save();
-    }
-    updateTraffic();
-    // --- Navigation ---
-    function renderNav() {
-      let nav = document.getElementById('nav');
-      if (currentUser) {
-        let user = users[currentUser];
-        let role = user.role || "user";
-        let level = calcLevel(user.score, user.role);
-        nav.innerHTML = `
-          欢迎, <b>${user.nickname}</b> ${levelBadge(level)}
-          <span style="font-size:0.95em;color:#888;">(${role === "admin" ? "管理员" : "普通用户"})</span> |
-          <button onclick="showMain()">论坛首页</button>
-          <button onclick="showPostForm()">发帖</button>
-          <button onclick="showUserProfile()">个人资料</button>
-          <button onclick="showDrafts()">草稿箱</button>
-          <button onclick="showFav()">我的收藏</button>
-          <button onclick="signIn()">每日签到</button>
-          ${role === "admin" ? '<button onclick="showUserList()">用户管理</button><button onclick="showSettings()">论坛设置</button><button onclick="showReportList()">举报管理</button><button onclick="showTraffic()">流量统计</button><button onclick="showBanPanel()">封禁管理</button>' : ''}
-          <button onclick="logout()">退出登录</button>
-          <button onclick="toggleDarkMode()">${forumSettings.darkMode ? '☀️' : '🌙'}</button>
-        `;
-      } else {
-        nav.innerHTML = `
-          <button onclick="showLogin()">登录</button>
-          <button onclick="showRegister()">注册</button>
-          <button onclick="toggleDarkMode()">${forumSettings.darkMode ? '☀️' : '🌙'}</button>
-        `;
-      }
-    }
-    // --- Main Forum ---
-    function showMain(page = 1, searchTerm = '', category = '全部') {
-      renderNav();
-      let main = document.getElementById('main');
-      let annHtml = `<div class="announcement"><b>公告：</b> ${escapeHtml(announcement)}</div>`;
-      let searchHtml = `
-        <div class="search-form">
-          <form onsubmit="searchPosts(event)">
-            <input name="keyword" placeholder="搜索标题、内容、作者" value="${searchTerm.replace(/"/g, '&quot;')}">
-            <select name="category">
-              <option value="全部"${category==='全部'?' selected':''}>全部分类</option>
-              ${forumSettings.categories.map(cat => `<option value="${cat}"${category===cat?' selected':''}>${cat}</option>`).join('')}
-            </select>
-            <button type="submit">搜索</button>
-          </form>
+<body class="gradient-bg min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-chess-board text-2xl text-blue-600 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">Gomoku AI</span>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+                    <a href="#features" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Features</a>
+                    <a href="#demo" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Live Demo</a>
+                    <a href="#download" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Download</a>
+                    <a href="#contact" class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-blue-600">Contact</a>
+                </div>
+            </div>
         </div>
-      `;
-      let filtered = posts.filter(p => {
-        if (p.draft) return false;
-        if (category !== '全部' && p.category !== category) return false;
-        if (!searchTerm) return true;
-        let kw = searchTerm.toLowerCase();
-        return (p.title.toLowerCase().includes(kw) ||
-                p.content.toLowerCase().includes(kw) ||
-                ((users[p.author]?.nickname || p.author).toLowerCase().includes(kw)));
-      });
-      filtered.sort((a, b) => (b.sticky ? 1 : 0) - (a.sticky ? 1 : 0) || new Date(b.time) - new Date(a.time));
-      let pageSize = forumSettings.pageSize;
-      let totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-      let curPage = Math.min(Math.max(page, 1), totalPages);
-      let html = annHtml + searchHtml + `<h2>帖子列表</h2>`;
-      html += `<div style="margin-bottom:10px;">`;
-      forumSettings.categories.forEach(cat => {
-        let cnt = posts.filter(p => !p.draft && p.category === cat).length;
-        html += `<span class="category-label">${cat}: ${cnt}</span> `;
-      });
-      html += `</div>`;
-      if (filtered.length === 0) { html += `<p>暂无帖子。</p>`; }
-      else {
-        html += filtered.slice((curPage - 1) * pageSize, curPage * pageSize).map(p => `
-          <div class="post${p.sticky ? ' sticky' : ''}">
-            <div class="title">
-              ${p.sticky ? '<span style="color:#b77;font-size:0.95em;">[置顶]</span>' : ''}
-              <span class="category-label">${escapeHtml(p.category)}</span>
-              <a href="#" onclick="showPost(${posts.indexOf(p)}); return false;">${escapeHtml(p.title)}</a>
-              ${p.attachments.some(a => a.type === 'video') ? `<span title="有视频">🎬</span>` : ''}
-              ${p.attachments.some(a => a.type === 'file') ? `<span title="有附件">📎</span>` : ''}
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                Advanced <span class="text-blue-600">Gomoku AI</span> Experience
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto">
+                A modern implementation of the classic Five in a Row game with sophisticated AI opponents, beautiful interface, and multiple difficulty levels.
+            </p>
+            <div class="mt-10 flex justify-center space-x-4">
+                <a href="#download" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10 transition duration-150 ease-in-out">
+                    Download Now
+                </a>
+                <a href="#demo" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10 transition duration-150 ease-in-out">
+                    Try Easy Mode
+                </a>
             </div>
-            <div class="meta">
-              作者: ${users[p.author]?.nickname || p.author} ${levelBadge(calcLevel(users[p.author]?.score || 0, users[p.author]?.role))}
-              | 时间: ${p.time} | 回复: ${p.replies.length} | 浏览: ${p.views}
-              | <span title="点赞数">👍${p.likes.length}</span> | <span title="收藏数">⭐${p.favs.length}</span>
-            </div>
-          </div>
-        `).join('');
-        html += `<div class="pagination">`;
-        if (curPage > 1) html += `<button onclick="showMain(${curPage-1},'${searchTerm}','${category}')">&lt;上一页</button>`;
-        for (let i = 1; i <= totalPages; i++)
-          html += `<button onclick="showMain(${i},'${searchTerm}','${category}')"${i===curPage?' style="font-weight:bold"':''}>${i}</button>`;
-        if (curPage < totalPages) html += `<button onclick="showMain(${curPage+1},'${searchTerm}','${category}')">下一页&gt;</button>`;
-        html += `</div>`;
-      }
-      main.innerHTML = html;
-    }
-    function searchPosts(e) {
-      e.preventDefault();
-      let kw = e.target.keyword.value.trim();
-      let cat = e.target.category.value;
-      showMain(1, kw, cat);
-    }
-    // --- Like and Favorite ---
-    function toggleLike(idx) {
-      if (!currentUser) return showLogin();
-      let p = posts[idx];
-      let likeIdx = p.likes.indexOf(currentUser);
-      if (likeIdx >= 0) { p.likes.splice(likeIdx, 1); }
-      else { p.likes.push(currentUser); }
-      save();
-      showPost(idx);
-    }
-    function toggleFav(idx) {
-      if (!currentUser) return showLogin();
-      let p = posts[idx];
-      let favIdx = p.favs.indexOf(currentUser);
-      let userFav = users[currentUser].fav;
-      let fid = p.id || idx;
-      let userFavIdx = userFav.indexOf(fid);
-      if (favIdx >= 0) {
-        p.favs.splice(favIdx, 1);
-        if (userFavIdx >= 0) userFav.splice(userFavIdx, 1);
-      } else {
-        p.favs.push(currentUser);
-        if (userFavIdx < 0) userFav.push(fid);
-      }
-      save();
-      showPost(idx);
-    }
-    function showFav() {
-      if (!currentUser) return showLogin();
-      renderNav();
-      let userFavIds = users[currentUser].fav;
-      let favPosts = userFavIds.map(fid => posts[parseInt(fid)]).filter(Boolean);
-      let html = `<h2>我的收藏</h2>`;
-      if (!favPosts.length) html += `<p>暂无收藏。</p>`;
-      else {
-        html += favPosts.map(p => `
-          <div class="post">
-            <div class="title">
-              <span class="category-label">${escapeHtml(p.category)}</span>
-              <a href="#" onclick="showPost(${posts.indexOf(p)}); return false;">${escapeHtml(p.title)}</a>
-            </div>
-            <div class="meta">
-              作者: ${users[p.author]?.nickname || p.author} | 时间: ${p.time} | 回复: ${p.replies.length}
-            </div>
-          </div>
-        `).join('');
-      }
-      html += `<div><button onclick="showMain()">返回首页</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    // --- Post Details and Reports ---
-    function showPost(idx) {
-      renderNav();
-      let p = posts[idx];
-      if (!p) { showMain(); return; }
-      p.views++;
-      save();
-      let isLiked = p.likes.indexOf(currentUser) !== -1;
-      let isFaved = p.favs.indexOf(currentUser) !== -1;
-      let html = `
-        <div class="post${p.sticky ? ' sticky' : ''}">
-          <div class="title">
-            ${p.sticky ? '<span style="color:#b77;font-size:0.95em;">[置顶]</span>' : ''}
-            <span class="category-label">${escapeHtml(p.category)}</span> ${escapeHtml(p.title)}
-          </div>
-          <div class="meta">
-            作者: ${users[p.author]?.nickname || p.author} ${levelBadge(calcLevel(users[p.author]?.score || 0, users[p.author]?.role))}
-            | 时间: ${p.time} | 浏览: ${p.views} | 点赞: <button class="like-btn${isLiked?' liked':''}" onclick="toggleLike(${idx})">${isLiked?'已赞':'点赞'}（${p.likes.length}）</button>
-            收藏: <button class="fav-btn${isFaved?' faved':''}" onclick="toggleFav(${idx})">${isFaved?'已收藏':'收藏'}（${p.favs.length}）</button>
-            ${ canDeletePost(idx) ? `<button class="admin-btn" onclick="editPost(${idx})">编辑</button>
-            <button class="admin-btn" onclick="deletePost(${idx})">删除</button>
-            <button class="admin-btn" onclick="toggleSticky(${idx})">${p.sticky?'取消置顶':'置顶'}</button>` : '' }
-            <button class="report-btn" onclick="showReportForm(${idx})">举报</button>
-          </div>
-          <div>${formatContent(filterXSS(p.content))}</div>
-          ${p.attachments.length ? renderAttachments(p.attachments) : ''}
         </div>
-        <h3>回复 (${p.replies.length})</h3>
-        <div class="reply-list">
-          ${p.replies.map((r, ridx) => `
-            <div class="reply">
-              <div>
-                <b>${users[r.author]?.nickname || r.author}</b> ${levelBadge(calcLevel(users[r.author]?.score||0, users[r.author]?.role))}
-                (${r.time})
-                ${canEditReply(idx, ridx) ? `<button class="admin-btn" onclick="editReply(${idx},${ridx})">编辑</button>
-                <button class="admin-btn" onclick="deleteReply(${idx},${ridx})">删除</button>` : ''}
-                <button class="report-btn" onclick="showReportForm(${idx},${ridx})">举报</button>
-              </div>
-              <div>${formatContent(filterXSS(r.content))}</div>
-            </div>
-          `).join('')}
+    </div>
+
+    <!-- Features Section -->
+    <div id="features" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Powerful Features
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
+                Experience the next generation of Gomoku with these advanced capabilities
+            </p>
         </div>
-      `;
-      if (currentUser) {
-        html += `
-          <div class="reply-form">
-            <h4>发表回复</h4>
-            <form onsubmit="reply(event,${idx})">
-              <textarea name="content" rows="3" required></textarea>
-              <div>
-                <span>插入：</span>
-                <button type="button" onclick="insertAtCursor(this.form.content, '*斜体*')">斜体</button>
-                <span class="color-btn-group">
-                  <button type="button" onclick="insertAtCursor(this.form.content, '[color=red]彩色字[/color]')">红字</button>
-                  <button type="button" onclick="insertAtCursor(this.form.content, '[color=blue]彩色字[/color]')">蓝字</button>
-                  <button type="button" onclick="insertAtCursor(this.form.content, '[color=green]彩色字[/color]')">绿字</button>
-                </span>
-              </div>
-              <button type="submit">回复</button>
-            </form>
-            <div id="replyMsg"></div>
-          </div>
-        `;
-      } else {
-        html += `<div><a href="#" onclick="showLogin();return false">请先登录后回复</a></div>`;
-      }
-      html += `<div style="margin-top:15px;"><button onclick="showMain()">返回</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    function renderAttachments(arr) {
-      if (!arr.length) return '';
-      let html = `<div style="margin-top:8px;"><b>附件：</b><ul>`;
-      arr.forEach(a => {
-        if (a.type === 'video') {
-          html += `<li><video controls class="video-attach" src="${a.data}" preload="metadata"></video>
-                   <span>${escapeHtml(a.name)}</span></li>`;
-        } else {
-          html += `<li><a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a></li>`;
+        
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <!-- Feature 1 -->
+            <div class="feature-card bg-white p-6 rounded-lg">
+                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white mb-4">
+                    <i class="fas fa-brain text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Advanced AI Opponents</h3>
+                <p class="text-gray-600">
+                    Multiple difficulty levels from Easy to Professional, each with unique algorithms including Minimax, Alpha-Beta pruning, and Monte Carlo Tree Search.
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="feature-card bg-white p-6 rounded-lg">
+                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-green-500 text-white mb-4">
+                    <i class="fas fa-laptop-code text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Modern Interface</h3>
+                <p class="text-gray-600">
+                    Beautiful, responsive design with smooth animations and intuitive controls that work on any device.
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="feature-card bg-white p-6 rounded-lg">
+                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-500 text-white mb-4">
+                    <i class="fas fa-cogs text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Customizable Settings</h3>
+                <p class="text-gray-600">
+                    Adjust board size, game rules, and AI behavior to create your perfect Gomoku experience.
+                </p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="feature-card bg-white p-6 rounded-lg">
+                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-red-500 text-white mb-4">
+                    <i class="fas fa-history text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Game Analysis</h3>
+                <p class="text-gray-600">
+                    Review your games with move-by-move history and AI suggestions for improvement.
+                </p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="feature-card bg-white p-6 rounded-lg">
+                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-yellow-500 text-white mb-4">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Multiplayer Modes</h3>
+                <p class="text-gray-600">
+                    Play against the AI or challenge friends in local multiplayer mode.
+                </p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="feature-card bg-white p-6 rounded-lg">
+                <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white mb-4">
+                    <i class="fas fa-trophy text-xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Achievements</h3>
+                <p class="text-gray-600">
+                    Unlock achievements as you progress and master different difficulty levels.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Demo Section -->
+    <div id="demo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 bg-white">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Try <span class="text-blue-600">Easy Mode</span> in Your Browser
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
+                Experience a simplified version of our Gomoku AI right in your web browser
+            </p>
+        </div>
+        
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Game Controls -->
+            <div class="w-full lg:w-1/4 bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Game Settings</h3>
+                
+                <div class="mb-6">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Game Mode</p>
+                    <div class="flex space-x-2">
+                        <button id="pve-mode" class="mode-btn flex-1 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-md">
+                            Player vs AI
+                        </button>
+                        <button id="pvp-mode" class="mode-btn flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
+                            Player vs Player
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <p class="text-sm font-medium text-gray-700 mb-2">AI Difficulty</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="easy-mode" class="mode-btn active px-3 py-2 bg-green-500 text-white text-sm font-medium rounded-md">
+                            Easy
+                        </button>
+                        <button id="medium-mode" class="mode-btn px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
+                            Medium
+                        </button>
+                        <button id="hard-mode" class="mode-btn px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
+                            Hard
+                        </button>
+                        <button id="pro-mode" class="mode-btn px-3 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md">
+                            Pro
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Current Status</p>
+                    <div id="game-status" class="p-2 bg-gray-100 rounded-md text-center text-sm font-medium">
+                        Black's Turn
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button id="undo-btn" class="flex-1 px-3 py-2 bg-yellow-500 text-white text-sm font-medium rounded-md hover:bg-yellow-600 disabled:opacity-50">
+                        Undo
+                    </button>
+                    <button id="restart-btn" class="flex-1 px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600">
+                        Restart
+                    </button>
+                </div>
+                
+                <div class="mt-8">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Game Rules</h3>
+                    <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
+                        <li>Black plays first, alternating turns</li>
+                        <li>First to get 5 in a row wins</li>
+                        <li>Lines can be horizontal, vertical or diagonal</li>
+                        <li>No restrictions on moves (standard Gomoku rules)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Game Board -->
+            <div class="w-full lg:w-2/4 game-container p-6">
+                <div id="board" class="grid grid-cols-15 gap-0 mx-auto w-max"></div>
+            </div>
+            
+            <!-- Game History -->
+            <div class="w-full lg:w-1/4 bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Move History</h3>
+                <div id="history-container" class="h-96 overflow-y-auto pr-2">
+                    <div id="history-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Section -->
+    <div id="download" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        <div class="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div class="px-6 py-8 sm:p-10 sm:pb-6">
+                <div class="text-center">
+                    <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                        Download <span class="text-blue-600">Gomoku AI</span>
+                    </h2>
+                    <p class="mt-4 text-xl text-gray-600">
+                        Get the full version with all features and difficulty levels
+                    </p>
+                </div>
+                
+                <div class="mt-12 grid grid-cols-1 gap-8 md:grid-cols-2">
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Main Program</h3>
+                        <p class="text-gray-600 mb-4">
+                            Download the latest stable version of Gomoku AI for Windows.
+                        </p>
+                        <a href="https://github.com/my-txz/AI-/releases/download/%E9%87%8A%E6%94%BE%E7%89%88%E6%9C%AC/AI.4.exe" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                            <i class="fas fa-download mr-2"></i> Download Latest (v4.0)
+                        </a>
+                        <p class="mt-3 text-sm text-gray-500">
+                            File size: ~8MB | Windows 7/10/11
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Other Versions</h3>
+                        <p class="text-gray-600 mb-4">
+                            Browse previous releases and alternative versions.
+                        </p>
+                        <a href="https://github.com/my-txz/AI-/releases/" class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-blue-700 bg-blue-100 hover:bg-blue-200">
+                            <i class="fas fa-archive mr-2"></i> View All Releases
+                        </a>
+                        <p class="mt-3 text-sm text-gray-500">
+                            Includes beta versions and historical releases
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-10 bg-blue-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-medium text-blue-800 mb-2">System Requirements</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm font-medium text-blue-700">Minimum</p>
+                            <ul class="text-sm text-blue-600 space-y-1 mt-1">
+                                <li>Windows 7 or later</li>
+                                <li>1GHz processor</li>
+                                <li>512MB RAM</li>
+                                <li>50MB disk space</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-blue-700">Recommended</p>
+                            <ul class="text-sm text-blue-600 space-y-1 mt-1">
+                                <li>Windows 10 or later</li>
+                                <li>2GHz dual-core processor</li>
+                                <li>2GB RAM</li>
+                                <li>100MB disk space</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <div class="text-center">
+                    <a href="https://github.com/my-txz/AI-" class="text-base font-medium text-blue-600 hover:text-blue-500">
+                        Visit Project Page on GitHub <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div id="contact" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 bg-white">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                Contact <span class="text-blue-600">Us</span>
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-gray-600 mx-auto">
+                Have questions, suggestions, or found a bug? We'd love to hear from you!
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <!-- Contact Form -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Send Us a Message</h3>
+                <form id="contact-form" class="space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Your Name</label>
+                        <input type="text" id="name" name="name" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none">
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" id="email" name="email" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none" required>
+                    </div>
+                    
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
+                        <select id="subject" name="subject" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none">
+                            <option value="question">Question</option>
+                            <option value="suggestion">Suggestion</option>
+                            <option value="bug">Bug Report</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                        <textarea id="message" name="message" rows="4" class="contact-input mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none" required></textarea>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="submit" class="btn-primary px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+                            Send via Outlook
+                        </button>
+                        <button type="button" id="github-issue-btn" class="btn-secondary px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">
+                            Create GitHub Issue
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Additional Contact Info -->
+            <div class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Project Information</h3>
+                    <p class="text-gray-600">
+                        Gomoku AI is an open-source project developed to showcase advanced game AI techniques in the classic Five in a Row game.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Report Issues</h3>
+                    <p class="text-gray-600 mb-2">
+                        Found a bug or have a technical issue? You can directly create an issue on our GitHub repository:
+                    </p>
+                    <a href="https://github.com/my-txz/AI-/issues" class="inline-flex items-center text-blue-600 hover:text-blue-500">
+                        <i class="fab fa-github mr-2"></i> GitHub Issues Page
+                    </a>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Contribute</h3>
+                    <p class="text-gray-600 mb-2">
+                        Interested in contributing to the project? Check out our GitHub repository:
+                    </p>
+                    <a href="https://github.com/my-txz/AI-" class="inline-flex items-center text-blue-600 hover:text-blue-500">
+                        <i class="fab fa-github mr-2"></i> GitHub Repository
+                    </a>
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Quick Links</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#features" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Features</a>
+                        <a href="#demo" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Live Demo</a>
+                        <a href="#download" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Download</a>
+                        <a href="https://github.com/my-txz/AI-/blob/main/README.md" class="px-3 py-1 bg-gray-100 rounded-md text-sm text-gray-700 hover:bg-gray-200">Documentation</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-white text-lg font-medium mb-4">Gomoku AI</h3>
+                    <p class="text-gray-300">
+                        An advanced implementation of the classic Five in a Row game with sophisticated AI opponents.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-white text-lg font-medium mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#features" class="text-gray-300 hover:text-white">Features</a></li>
+                        <li><a href="#demo" class="text-gray-300 hover:text-white">Live Demo</a></li>
+                        <li><a href="#download" class="text-gray-300 hover:text-white">Download</a></li>
+                        <li><a href="#contact" class="text-gray-300 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-white text-lg font-medium mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="https://github.com/my-txz/AI-" class="text-gray-300 hover:text-white">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="mt-4 text-gray-300">
+                        © 2025 Gomoku AI Project. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Game JS -->
+    <script>
+        // Initialize the game board
+        const BOARD_SIZE = 15;
+        const EMPTY = 0;
+        const BLACK = 1;
+        const WHITE = 2;
+        
+        let currentPlayer = BLACK;
+        let gameBoard = Array(BOARD_SIZE).fill().map(() => Array(BOARD_SIZE).fill(EMPTY));
+        let gameHistory = [];
+        let gameMode = 'pve';
+        let aiDifficulty = 'easy';
+        let gameActive = true;
+        
+        // DOM elements
+        const boardElement = document.getElementById('board');
+        const gameStatusElement = document.getElementById('game-status');
+        const historyListElement = document.getElementById('history-list');
+        const undoBtn = document.getElementById('undo-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        // Mode buttons
+        const pveModeBtn = document.getElementById('pve-mode');
+        const pvpModeBtn = document.getElementById('pvp-mode');
+        const easyModeBtn = document.getElementById('easy-mode');
+        const mediumModeBtn = document.getElementById('medium-mode');
+        const hardModeBtn = document.getElementById('hard-mode');
+        const proModeBtn = document.getElementById('pro-mode');
+        
+        // Initialize the board
+        function initializeBoard() {
+            boardElement.innerHTML = '';
+            
+            // Create board cells
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'board-cell relative';
+                    
+                    // Add mark points at key positions
+                    if ((row === 3 || row === 7 || row === 11) && (col === 3 || col === 7 || col === 11)) {
+                        cell.classList.add('mark-point');
+                    }
+                    
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    boardElement.appendChild(cell);
+                }
+            }
+            
+            updateGameStatus();
         }
-      });
-      html += `</ul></div>`;
-      return html;
-    }
-    // --- Deletion with permission check ---
-    function canDeletePost(idx) {
-      let p = posts[idx];
-      return currentUser && (currentUser === p.author || (users[currentUser] && users[currentUser].role === "admin"));
-    }
-    function deletePost(idx) {
-      if (!canDeletePost(idx)) { alert("无权删除此帖子！"); return; }
-      if (!confirm("确认删除该帖子？删除后将无法恢复！")) return;
-      posts.splice(idx, 1);
-      save();
-      alert("帖子已删除");
-      showMain();
-    }
-    // --- Report ---
-    function showReportForm(idx, ridx) {
-      renderNav();
-      let html = `<div class="report-form">
-          <h3>举报${ typeof ridx === 'number' ? '回复' : '帖子' }</h3>
-          <form onsubmit="submitReport(event,${idx},${typeof ridx === 'number' ? ridx : 'null'})">
-            <label>理由<select name="reason">
-              <option>广告</option><option>辱骂</option><option>违法内容</option><option>色情</option><option>其他</option>
-            </select></label>
-            <label>补充说明（选填）<input name="extra"></label>
-            <button type="submit">提交举报</button>
-          </form>
-          <div><button onclick="showPost(${idx})">返回</button></div>
-        </div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    function submitReport(e, idx, ridx) {
-      e.preventDefault();
-      if (!currentUser) return showLogin();
-      let reason = e.target.reason.value;
-      let extra = e.target.extra.value.trim();
-      reports.push({
-        id: reports.length + 1,
-        postIdx: idx,
-        replyIdx: typeof ridx === 'number' ? ridx : null,
-        reporter: currentUser,
-        time: new Date().toLocaleString(),
-        reason, extra, handled: false
-      });
-      if (typeof ridx === 'number')
-        posts[idx].replies[ridx].reports = (posts[idx].replies[ridx].reports || []).concat([{ reporter: currentUser, reason, extra, time: new Date().toLocaleString() }]);
-      else
-        posts[idx].reports = (posts[idx].reports || []).concat([{ reporter: currentUser, reason, extra, time: new Date().toLocaleString() }]);
-      save();
-      alert("举报成功！");
-      showPost(idx);
-    }
-    function showReportList() {
-      if (!currentUser || users[currentUser].role !== "admin") return showMain();
-      renderNav();
-      let html = `<h2>举报管理</h2>`;
-      if (!reports.length) html += `<p>暂无举报记录。</p>`;
-      else {
-        html += `<div class="report-list">` + reports.map((r, i) => {
-          let type = (r.replyIdx !== null) ? '回复' : '帖子';
-          let content = type === '帖子' ? escapeHtml(posts[r.postIdx]?.title || '') : escapeHtml(posts[r.postIdx]?.replies?.[r.replyIdx]?.content || '');
-          return `<div style="margin-bottom:10px;">
-              <b>[${type}]</b> ${type==='帖子' ? '标题: ' : '内容: '}${content}<br>
-              举报人: ${users[r.reporter]?.nickname || r.reporter} | 时间: ${r.time}<br>
-              理由: ${r.reason} ${r.extra ? ('，说明：' + escapeHtml(r.extra)) : ""}<br>
-              状态: <b>${r.handled ? '已处理' : '待处理'}</b><br>
-              <button class="admin-btn" onclick="handleReport(${i}, true)">通过并删除</button>
-              <button class="admin-btn" onclick="handleReport(${i}, false)">标记为已处理</button>
-            </div>`;
-        }).join('') + `</div>`;
-      }
-      html += `<div><button onclick="showMain()">返回首页</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    function handleReport(i, del) {
-      let r = reports[i];
-      if (!r) return;
-      if (del) {
-        if (r.replyIdx !== null) { posts[r.postIdx].replies.splice(r.replyIdx, 1); }
-        else { posts.splice(r.postIdx, 1); }
-      }
-      r.handled = true;
-      save();
-      alert('已处理');
-      showReportList();
-    }
-    // --- Drafts ---
-    function showDrafts() {
-      if (!currentUser) return showLogin();
-      renderNav();
-      let userDrafts = drafts[currentUser] || [];
-      let html = `<h2>草稿箱</h2>`;
-      if (!userDrafts.length) { html += `<p>暂无草稿。</p>`; }
-      else {
-        html += `<ul class="draft-list">` + userDrafts.map((d, i) => `
-          <li>
-            <b>${escapeHtml(d.title) || '[无标题]'}</b>
-            <button class="draft-btn" onclick="editDraft(${i})">编辑</button>
-            <button class="draft-btn" onclick="deleteDraft(${i})">删除</button>
-            <button class="draft-btn" onclick="publishDraft(${i})">发布</button>
-          </li>
-        `).join('') + `</ul>`;
-      }
-      html += `<div><button onclick="showMain()">返回</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    function saveDraft(draft, editingIndex) {
-      if (!currentUser) return;
-      if (!drafts[currentUser]) drafts[currentUser] = [];
-      if (typeof editingIndex === 'number') { drafts[currentUser][editingIndex] = draft; }
-      else { drafts[currentUser].push(draft); }
-      save();
-    }
-    function editDraft(i) {
-      let d = (drafts[currentUser] || [])[i];
-      showPostForm(d, i);
-    }
-    function deleteDraft(i) {
-      if (!confirm("确认删除该草稿？")) return;
-      drafts[currentUser].splice(i, 1);
-      save();
-      showDrafts();
-    }
-    function publishDraft(i) {
-      let d = drafts[currentUser][i];
-      posts.unshift({
-        title: d.title,
-        content: d.content,
-        author: currentUser,
-        time: new Date().toLocaleString(),
-        replies: [],
-        sticky: false,
-        views: 0,
-        likes: [],
-        favs: [],
-        category: d.category || forumSettings.categories[0],
-        attachments: d.attachments || [],
-        draft: false,
-        reports: []
-      });
-      drafts[currentUser].splice(i, 1);
-      users[currentUser].score += 10;
-      save();
-      alert('草稿已发布并获得10积分！');
-      showMain();
-    }
-    // --- User Management (Admin) ---
-    function showUserList() {
-      if (!currentUser || users[currentUser].role !== "admin") return showMain();
-      renderNav();
-      let html = `<h2>用户管理</h2>
-        <table class="user-list" border="1" cellspacing="0">
-          <tr>
-            <th>用户名</th>
-            <th>昵称</th>
-            <th>等级</th>
-            <th>积分</th>
-            <th>注册时间</th>
-            <th>状态</th>
-            <th>操作</th>
-          </tr>`;
-      Object.keys(users).forEach(u => {
-        let user = users[u];
-        html += `<tr>
-          <td>${u}</td>
-          <td>${user.nickname}</td>
-          <td>${levelBadge(calcLevel(user.score, user.role))}</td>
-          <td>${user.score}</td>
-          <td>${user.regDate}</td>
-          <td>${user.banInfo && user.banInfo.accessBanUntil > Date.now() ? `<span style="color:#e74c3c;">访问封禁中</span>` : (user.banInfo && user.banInfo.chatBanUntil > Date.now() ? `<span style="color:#e74c3c;">禁言中</span>` : '正常')}</td>
-          <td>
-            ${u !== "master" ? `
-            <button class="admin-btn" onclick="deleteUser('${u}')">删除</button>
-            <button class="admin-btn" onclick="toggleAdmin('${u}')">${user.role==="admin"?"降为普通":"设为管理员"}</button>
-            ${user.banInfo && user.banInfo.accessBanUntil > Date.now() ? `<button class="ban-btn" onclick="unbanUser('${u}', 'access')">解封访问</button>` : `<button class="ban-btn" onclick="banUserPrompt('${u}', 'access')">封禁访问</button>`}
-            ${user.banInfo && user.banInfo.chatBanUntil > Date.now() ? `<button class="ban-btn" onclick="unbanUser('${u}', 'chat')">解除禁言</button>` : `<button class="ban-btn" onclick="banUserPrompt('${u}', 'chat')">封禁禁言</button>`}
-            ` : ""}
-          </td>
-        </tr>`;
-      });
-      html += `</table>
-        <div style="margin-top:15px;"><button onclick="showMain()">返回</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    function deleteUser(u) {
-      if (!confirm("确认删除用户：" + u + "？此操作不可恢复！")) return;
-      delete users[u];
-      posts = posts.filter(p => p.author !== u);
-      posts.forEach(p => {
-        p.replies = p.replies.filter(r => r.author !== u);
-        p.likes = p.likes.filter(l => l !== u);
-        p.favs = p.favs.filter(f => f !== u);
-      });
-      delete drafts[u];
-      save();
-      alert("已删除用户及其帖子/回复。");
-      showUserList();
-    }
-    function toggleAdmin(u) {
-      users[u].role = users[u].role === "admin" ? "user" : "admin";
-      save();
-      showUserList();
-    }
-    function banUserPrompt(u, type) {
-      let duration = prompt("请输入封禁时长（单位：小时，范围1-3600）：");
-      let hours = parseInt(duration);
-      if (isNaN(hours) || hours < 1 || hours > 3600) { alert("时长无效！"); return; }
-      let until = Date.now() + hours * 3600 * 1000;
-      if (type === "access") { users[u].banInfo.accessBanUntil = until; }
-      else if (type === "chat") { users[u].banInfo.chatBanUntil = until; }
-      save();
-      alert("封禁操作成功！");
-      showUserList();
-    }
-    function unbanUser(u, type) {
-      if (type === "access") { users[u].banInfo.accessBanUntil = 0; }
-      else if (type === "chat") { users[u].banInfo.chatBanUntil = 0; }
-      save();
-      alert("解禁成功！");
-      showUserList();
-    }
-    // --- Reply Editing ---
-    function canEditReply(idx, ridx) {
-      if (!currentUser) return false;
-      let r = posts[idx].replies[ridx];
-      return currentUser === r.author || (users[currentUser] && users[currentUser].role === "admin");
-    }
-    function editReply(idx, ridx) {
-      let r = posts[idx].replies[ridx];
-      renderNav();
-      document.getElementById('main').innerHTML = `
-        <div class="reply-form">
-          <h2>编辑回复</h2>
-          <form onsubmit="doEditReply(event,${idx},${ridx})">
-            <textarea name="content" rows="4" required>${escapeHtml(r.content)}</textarea>
-            <div>
-              <span>插入：</span>
-              <button type="button" onclick="insertAtCursor(this.form.content, '*斜体*')">斜体</button>
-              <span class="color-btn-group">
-                <button type="button" onclick="insertAtCursor(this.form.content, '[color=red]彩色字[/color]')">红字</button>
-                <button type="button" onclick="insertAtCursor(this.form.content, '[color=blue]彩色字[/color]')">蓝字</button>
-                <button type="button" onclick="insertAtCursor(this.form.content, '[color=green]彩色字[/color]')">绿字</button>
-              </span>
-            </div>
-            <button type="submit">保存</button>
-          </form>
-          <div><button onclick="showPost(${idx})">取消</button></div>
-        </div>
-      `;
-    }
-    function doEditReply(e, idx, ridx) {
-      e.preventDefault();
-      if (users[currentUser]?.banInfo?.chatBanUntil > Date.now()) { alert('禁言用户无法编辑'); return; }
-      posts[idx].replies[ridx].content = e.target.content.value.trim();
-      let sensitive = checkSensitive(posts[idx].replies[ridx].content);
-      if (sensitive) { alert("回复中包含敏感词：" + sensitive.join(", ")); return; }
-      save();
-      showPost(idx);
-    }
-    function deleteReply(idx, ridx) {
-      if (!confirm("确认删除该回复？")) return;
-      posts[idx].replies.splice(ridx, 1);
-      save();
-      showPost(idx);
-    }
-    // --- Post Editing ---
-    function editPost(idx) {
-      let p = posts[idx];
-      showPostForm(p, undefined, idx);
-    }
-    function doEditPost(e, idx) {
-      e.preventDefault();
-      let p = posts[idx];
-      if (users[p.author]?.banInfo?.chatBanUntil > Date.now()) { alert('禁言用户无法编辑'); return; }
-      p.title = e.target.title.value.trim();
-      p.content = e.target.content.value.trim();
-      p.category = e.target.category.value || forumSettings.categories[0];
-      let sensitive = checkSensitive(p.title + " " + p.content);
-      if (sensitive) { alert("内容中包含敏感词：" + sensitive.join(", ")); return; }
-      let files = Array.from(e.target.attachments.files);
-      let video = files.find(f => f.type === 'video/mp4');
-      if (video) {
-        if (!video.name.toLowerCase().endsWith(".mp4") || video.size > 80 * 1024 * 1024) {
-          alert("视频必须为mp4格式且不超过80MB");
-          return;
+        
+        // Handle cell click
+        function handleCellClick(row, col) {
+            if (!gameActive || gameBoard[row][col] !== EMPTY) return;
+            
+            // Place the piece
+            placePiece(row, col, currentPlayer);
+            
+            // Check for win
+            if (checkWin(row, col, currentPlayer)) {
+                gameActive = false;
+                const winner = currentPlayer === BLACK ? 'Black' : 'White';
+                gameStatusElement.textContent = `${winner} wins!`;
+                return;
+            }
+            
+            // Check for draw
+            if (isBoardFull()) {
+                gameActive = false;
+                gameStatusElement.textContent = 'Game ended in a draw!';
+                return;
+            }
+            
+            // Switch player
+            currentPlayer = currentPlayer === BLACK ? WHITE : BLACK;
+            updateGameStatus();
+            
+            // If in PvE mode and it's AI's turn
+            if (gameMode === 'pve' && currentPlayer === WHITE) {
+                setTimeout(() => {
+                    makeAIMove();
+                }, 500);
+            }
         }
-      }
-      if (files.length) {
-        let readerPromises = files.map(file => {
-          if (file.type.startsWith('video/')) {
-            if (!file.name.toLowerCase().endsWith('.mp4') || file.size > 80 * 1024 * 1024) { return Promise.reject("视频必须为mp4格式且不超过80MB"); }
-          }
-          return new Promise(res => {
-            let reader = new FileReader();
-            reader.onload = function(evt) { res({ name: file.name, data: evt.target.result, type: file.type.startsWith('video/') ? 'video' : 'file' }); };
-            reader.readAsDataURL(file);
-          });
-        });
-        Promise.all(readerPromises).then(arr => {
-          p.attachments = arr;
-          save();
-          showPost(idx);
-        }).catch(msg => alert(msg));
-      } else {
-        save();
-        showPost(idx);
-      }
-    }
-    // --- User Profile ---
-    function showUserProfile() {
-      if (!currentUser) return showLogin();
-      renderNav();
-      let user = users[currentUser];
-      let html = `
-        <h2>个人资料</h2>
-        <div class="profile-info">
-          <img src="${user.avatar || 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + encodeURIComponent(currentUser)}" class="profile-avatar">
-          <div class="profile-details">
-            <b>${user.nickname}</b> ${levelBadge(calcLevel(user.score, user.role))}<br>
-            用户名: ${currentUser}<br>
-            邮箱: ${escapeHtml(user.email)}<br>
-            注册时间: ${user.regDate}<br>
-            当前积分: <span style="color:#2ecc71; font-weight:bold">${user.score}</span><br>
-            等级: ${calcLevel(user.score, user.role)}
-          </div>
-        </div>
-        <form class="profile-form" onsubmit="updateProfile(event)">
-          <label>昵称 <input name="nickname" value="${user.nickname.replace(/"/g, '&quot;')}" required></label>
-          <label>邮箱 <input name="email" type="email" value="${escapeHtml(user.email)}"></label>
-          <label>上传头像 <input name="avatar" type="file" accept="image/*"></label>
-          <label>修改密码 <input name="password" type="password" placeholder="如需修改请填写"></label>
-          <button type="submit">保存</button>
-        </form>
-        <div><button onclick="showMain()">返回</button></div>
-      `;
-      document.getElementById('main').innerHTML = html;
-    }
-    function updateProfile(e) {
-      e.preventDefault();
-      let nickname = e.target.nickname.value.trim();
-      let email = e.target.email.value.trim();
-      let pwd = e.target.password.value;
-      let user = users[currentUser];
-      if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]{2,20}$/.test(nickname)) { alert("昵称格式不合法"); return; }
-      if (email && !/^[\w\.\-]+@[\w\-]+\.[a-zA-Z]{2,}$/.test(email)) { alert("邮箱格式不正确"); return; }
-      user.nickname = nickname;
-      user.email = email;
-      if (pwd) user.password = pwd;
-      let file = e.target.avatar.files[0];
-      if (file) {
-        if (!file.type.startsWith('image/')) { alert('请上传图片格式'); return; }
-        let reader = new FileReader();
-        reader.onload = function(evt) {
-          user.avatar = evt.target.result;
-          save();
-          alert("资料已更新");
-          showUserProfile();
-        };
-        reader.readAsDataURL(file);
-      } else {
-        save();
-        alert("资料已更新");
-        showUserProfile();
-      }
-    }
-    // --- Post Form ---
-    function showPostForm(p = {}, editingDraftIndex, editingPostIndex) {
-      if (!currentUser) { showLogin(); return; }
-      if (users[currentUser]?.banInfo?.chatBanUntil > Date.now()) { alert('你已被禁言'); return; }
-      renderNav();
-      let isEditing = typeof editingPostIndex === 'number';
-      let isEditingDraft = typeof editingDraftIndex === 'number';
-      let attsHtml = '';
-      if (p.attachments && p.attachments.length) {
-        attsHtml = `<div>已有附件：${p.attachments.map(a =>
-          a.type === 'video' ? `<video controls class="video-attach" src="${a.data}"></video>` :
-          `<a href="${a.data}" download="${escapeHtml(a.name)}">${escapeHtml(a.name)}</a>`
-        ).join('，')}</div>`;
-      }
-      document.getElementById('main').innerHTML = `
-        <div class="post-form">
-          <h2>${isEditing ? '编辑帖子' : isEditingDraft ? '编辑草稿' : '发新帖'}</h2>
-          <form onsubmit="${isEditing ? 'doEditPost(event,' + editingPostIndex + ')' : isEditingDraft ? 'doEditDraft(event,' + editingDraftIndex + ')' : 'post(event,' + (isEditingDraft ? editingDraftIndex : '') + ')'}" enctype="multipart/form-data">
-            <label>标题 <input name="title" value="${escapeHtml(p.title) || ''}" required></label>
-            <label>分类
-              <select name="category">
-                ${forumSettings.categories.map(cat => `<option value="${cat}"${p.category===cat?' selected':''}>${cat}</option>`).join('')}
-              </select>
-            </label>
-            <label>
-              内容 <textarea name="content" rows="6" required>${escapeHtml(p.content) || ''}</textarea>
-              <div>
-                <span>插入：</span>
-                <button type="button" onclick="insertAtCursor(this.form.content, '*斜体*')">斜体</button>
-                <span class="color-btn-group">
-                  <button type="button" onclick="insertAtCursor(this.form.content, '[color=red]彩色字[/color]')">红字</button>
-                  <button type="button" onclick="insertAtCursor(this.form.content, '[color=blue]彩色字[/color]')">蓝字</button>
-                  <button type="button" onclick="insertAtCursor(this.form.content, '[color=green]彩色字[/color]')">绿字</button>
-                </span>
-              </div>
-            </label>
-            <label>上传附件/视频（支持mp4视频≤80MB,可多选）<input type="file" name="attachments" multiple></label>
-            ${attsHtml}
-            <button type="submit">${isEditing ? '保存' : '发布'}</button>
-            <button type="button" onclick="saveToDraft(this.form, ${isEditingDraft ? editingDraftIndex : 'undefined'})">${isEditingDraft ? '保存草稿' : '存为草稿'}</button>
-          </form>
-          <div><button onclick="showMain()">取消</button></div>
-          <div id="postMsg"></div>
-        </div>
-      `;
-    }
-    function saveToDraft(form, draftIndex) {
-      let title = form.title.value.trim();
-      let content = form.content.value.trim();
-      let category = form.category.value;
-      let files = Array.from(form.attachments.files);
-      if (!title && !content && files.length === 0) {
-        alert('草稿内容不能为空');
-        return;
-      }
-      if (files.length) {
-        let readerPromises = files.map(file => {
-          if (file.type.startsWith('video/')) {
-            if (!file.name.toLowerCase().endsWith('.mp4') || file.size > 80 * 1024 * 1024) { return Promise.reject("视频必须为mp4格式且不超过80MB"); }
-          }
-          return new Promise(res => {
-            let reader = new FileReader();
-            reader.onload = function(evt) { res({ name: file.name, data: evt.target.result, type: file.type.startsWith('video/') ? 'video' : 'file' }); };
-            reader.readAsDataURL(file);
-          });
-        });
-        Promise.all(readerPromises).then(arr => {
-          let draft = { title, content, category, attachments: arr };
-          saveDraft(draft, draftIndex);
-          alert('草稿已保存');
-          showDrafts();
-        }).catch(msg => alert(msg));
-      } else {
-        let draft = { title, content, category, attachments: [] };
-        saveDraft(draft, draftIndex);
-        alert('草稿已保存');
-        showDrafts();
-      }
-    }
-    function doEditDraft(e, i) {
-      e.preventDefault();
-      let title = e.target.title.value.trim();
-      let content = e.target.content.value.trim();
-      let category = e.target.category.value;
-      let files = Array.from(e.target.attachments.files);
-      if (files.length) {
-        let readerPromises = files.map(file => {
-          if (file.type.startsWith('video/')) {
-            if (!file.name.toLowerCase().endsWith('.mp4') || file.size > 80 * 1024 * 1024) { return Promise.reject("视频必须为mp4格式且不超过80MB"); }
-          }
-          return new Promise(res => {
-            let reader = new FileReader();
-            reader.onload = function(evt) { res({ name: file.name, data: evt.target.result, type: file.type.startsWith('video/') ? 'video' : 'file' }); };
-            reader.readAsDataURL(file);
-          });
-        });
-        Promise.all(readerPromises).then(arr => {
-          drafts[currentUser][i] = { title, content, category, attachments: arr };
-          save();
-          alert('草稿已保存');
-          showDrafts();
-        }).catch(msg => alert(msg));
-      } else {
-        let oldAtt = (drafts[currentUser][i] || {}).attachments || [];
-        drafts[currentUser][i] = { title, content, category, attachments: oldAtt };
-        save();
-        alert('草稿已保存');
-        showDrafts();
-      }
-    }
-    function post(e, editingDraftIndex) {
-      e.preventDefault();
-      if (users[currentUser]?.banInfo?.chatBanUntil > Date.now()) { alert('你已被禁言'); return; }
-      let title = e.target.title.value.trim();
-      let content = e.target.content.value.trim();
-      let category = e.target.category.value;
-      let sensitive = checkSensitive(title + " " + content);
-      if (sensitive) { alert("内容中包含敏感词：" + sensitive.join(", ")); return; }
-      let files = Array.from(e.target.attachments.files);
-      if (files.length) {
-        let readerPromises = files.map(file => {
-          if (file.type.startsWith('video/')) {
-            if (!file.name.toLowerCase().endsWith('.mp4') || file.size > 80 * 1024 * 1024) { return Promise.reject("视频必须为mp4格式且不超过80MB"); }
-          }
-          return new Promise(res => {
-            let reader = new FileReader();
-            reader.onload = function(evt) { res({ name: file.name, data: evt.target.result, type: file.type.startsWith('video/') ? 'video' : 'file' }); };
-            reader.readAsDataURL(file);
-          });
-        });
-        Promise.all(readerPromises).then(arr => {
-          posts.unshift({
-            title, content, author: currentUser, time: new Date().toLocaleString(),
-            replies: [], sticky: false, views: 0, likes: [], favs: [],
-            category, attachments: arr, draft: false, reports: []
-          });
-          if (typeof editingDraftIndex === 'number' && drafts[currentUser]) { drafts[currentUser].splice(editingDraftIndex, 1); }
-          users[currentUser].score += 10;
-          save();
-          document.getElementById('postMsg').innerHTML = `<span class="success">发帖成功，获得10积分！</span>`;
-          setTimeout(showMain, 800);
-        }).catch(msg => alert(msg));
-      } else {
-        posts.unshift({
-          title, content, author: currentUser, time: new Date().toLocaleString(),
-          replies: [], sticky: false, views: 0, likes: [], favs: [],
-          category, attachments: [], draft: false, reports: []
-        });
-        if (typeof editingDraftIndex === 'number' && drafts[currentUser]) { drafts[currentUser].splice(editingDraftIndex, 1); }
-        users[currentUser].score += 10;
-        save();
-        document.getElementById('postMsg').innerHTML = `<span class="success">发帖成功，获得10积分！</span>`;
-        setTimeout(showMain, 800);
-      }
-    }
-    // --- Login / Register / Logout ---
-    function showLogin() {
-      renderNav();
-      document.getElementById('main').innerHTML = `
-        <div class="login">
-          <h2>登录</h2>
-          <form onsubmit="login(event)">
-            <label>用户名 <input name="user" required></label>
-            <label>密码 <input name="pass" type="password" required></label>
-            <button type="submit">登录</button>
-          </form>
-          <div id="loginMsg"></div>
-        </div>
-      `;
-    }
-    function showRegister() {
-      renderNav();
-      document.getElementById('main').innerHTML = `
-        <div class="register">
-          <h2>注册</h2>
-          <form onsubmit="register(event)">
-            <label>用户名 <input name="user" pattern="^[a-zA-Z0-9_]{3,}$" required></label>
-            <label>密码 <input name="pass" type="password" required></label>
-            <label>昵称 <input name="nickname" required></label>
-            <label>邮箱（选填） <input name="email" type="email"></label>
-            <button type="submit">注册</button>
-          </form>
-          <div id="registerMsg"></div>
-        </div>
-      `;
-    }
-    function login(e) {
-      e.preventDefault();
-      let user = e.target.user.value.trim();
-      let pass = e.target.pass.value;
-      let msg = document.getElementById('loginMsg');
-      if (users[user] && users[user].password === pass) {
-        if (users[user].banInfo && users[user].banInfo.accessBanUntil > Date.now()) {
-          msg.innerHTML = `<span class="error">该用户当前处于访问封禁状态！</span>`;
-          return;
+        
+        // Place a piece on the board
+        function placePiece(row, col, player) {
+            gameBoard[row][col] = player;
+            gameHistory.push({row, col, player});
+            updateBoardUI();
+            addToHistory(row, col, player);
         }
-        currentUser = user;
-        save();
-        msg.innerHTML = `<span class="success">登录成功！</span>`;
-        setTimeout(showMain, 600);
-      } else { msg.innerHTML = `<span class="error">用户名或密码错误。</span>`; }
-    }
-    function register(e) {
-      e.preventDefault();
-      let user = e.target.user.value.trim();
-      let pass = e.target.pass.value;
-      let nickname = e.target.nickname.value.trim();
-      let email = e.target.email.value.trim();
-      let msg = document.getElementById('registerMsg');
-      if (users[user]) { msg.innerHTML = `<span class="error">用户名已存在。</span>`; return; }
-      if (user.length < 3) { msg.innerHTML = `<span class="error">用户名需至少3位。</span>`; return; }
-      if (email && !/^[\w\.\-]+@[\w\-]+\.[a-zA-Z]{2,}$/.test(email)) { msg.innerHTML = `<span class="error">邮箱格式不正确。</span>`; return; }
-      users[user] = {
-        password: pass,
-        nickname,
-        role: "user",
-        email,
-        avatar: "",
-        regDate: todayStr(),
-        lastSign: "",
-        score: 6,
-        fav: [],
-        banInfo: { accessBanUntil: 0, chatBanUntil: 0 }
-      };
-      save();
-      msg.innerHTML = `<span class="success">注册成功，获得6积分！请登录。</span>`;
-      setTimeout(showLogin, 1000);
-    }
-    function logout() {
-      currentUser = null;
-      save();
-      showMain();
-    }
-    // --- Forum Settings (Admin) ---
-    function showSettings() {
-      if (!currentUser || users[currentUser].role !== "admin") return showMain();
-      renderNav();
-      document.getElementById('main').innerHTML = `
-        <h2>论坛设置</h2>
-        <form class="settings-form" onsubmit="updateSettings(event)">
-          <label>每页帖子数 <input name="pageSize" type="number" min="1" max="20" value="${forumSettings.pageSize}"></label>
-          <label>分类（用逗号分隔） <input name="categories" value="${forumSettings.categories.join(',')}"></label>
-          <label>公告 <textarea name="announcement" rows="3">${escapeHtml(announcement)}</textarea></label>
-          <label>暗黑模式 <input type="checkbox" name="darkMode"${forumSettings.darkMode?' checked':''}></label>
-          <button type="submit">保存设置</button>
-        </form>
-        <div style="margin-top:12px;"><button onclick="showMain()">返回</button></div>
-      `;
-    }
-    function updateSettings(e) {
-      e.preventDefault();
-      let ps = parseInt(e.target.pageSize.value) || 5;
-      let cats = e.target.categories.value.split(',').map(s => s.trim()).filter(Boolean);
-      let ann = e.target.announcement.value;
-      let dark = e.target.darkMode.checked;
-      forumSettings.pageSize = ps;
-      forumSettings.categories = cats.length ? cats : ["综合"];
-      announcement = ann;
-      forumSettings.darkMode = dark;
-      save();
-      updateDarkMode();
-      alert('设置已保存');
-      showSettings();
-    }
-    function toggleDarkMode() {
-      forumSettings.darkMode = !forumSettings.darkMode;
-      save();
-      updateDarkMode();
-      renderNav();
-    }
-    // --- Daily Sign-in ---
-    function signIn() {
-      if (!currentUser) return showLogin();
-      let user = users[currentUser];
-      let today = todayStr();
-      if (user.lastSign === today) { alert('今日已签到，明天再来！'); return; }
-      user.lastSign = today;
-      user.score += 10;
-      save();
-      alert('签到成功，获得10积分！');
-      showUserProfile();
-    }
-    // --- Traffic and Ban Panel (Admin) ---
-    function showTraffic() {
-      if (!currentUser || users[currentUser].role !== "admin") return showMain();
-      renderNav();
-      let today = todayStr();
-      let todayTraffic = traffic[today] || { count: 0, ips: [] };
-      let html = `<h2>今日流量统计 (${today})</h2>
-        <p>访问次数: ${todayTraffic.count}</p>
-        <p>访问者IP地址: ${todayTraffic.ips.join(', ') || '无'}</p>
-        <div><button onclick="showMain()">返回</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    function showBanPanel() {
-      if (!currentUser || users[currentUser].role !== "admin") return showMain();
-      renderNav();
-      let html = `<h2>封禁管理</h2>
-        <p>请选择要执行的封禁操作：</p>
-        <button onclick="showUserList()">管理用户封禁</button>
-        <div><button onclick="showMain()">返回</button></div>`;
-      document.getElementById('main').innerHTML = html;
-    }
-    // --- Initialization ---
-    showMain();
-    // --- Global Bindings ---
-    window.showMain = showMain;
-    window.showLogin = showLogin;
-    window.showRegister = showRegister;
-    window.showPostForm = showPostForm;
-    window.showPost = showPost;
-    window.logout = logout;
-    window.login = login;
-    window.register = register;
-    window.post = post;
-    window.reply = reply;
-    window.searchPosts = searchPosts;
-    window.toggleLike = toggleLike;
-    window.toggleFav = toggleFav;
-    window.showFav = showFav;
-    window.showUserList = showUserList;
-    window.deleteUser = deleteUser;
-    window.toggleAdmin = toggleAdmin;
-    window.editPost = editPost;
-    window.doEditPost = doEditPost;
-    window.deletePost = deletePost;
-    window.toggleSticky = toggleSticky;
-    window.editReply = editReply;
-    window.doEditReply = doEditReply;
-    window.deleteReply = deleteReply;
-    window.showUserProfile = showUserProfile;
-    window.updateProfile = updateProfile;
-    window.showSettings = showSettings;
-    window.updateSettings = updateSettings;
-    window.toggleDarkMode = toggleDarkMode;
-    window.showDrafts = showDrafts;
-    window.saveToDraft = saveToDraft;
-    window.editDraft = editDraft;
-    window.deleteDraft = deleteDraft;
-    window.publishDraft = publishDraft;
-    window.doEditDraft = doEditDraft;
-    window.showReportForm = showReportForm;
-    window.submitReport = submitReport;
-    window.showReportList = showReportList;
-    window.handleReport = handleReport;
-    window.signIn = signIn;
-    window.showTraffic = showTraffic;
-    window.showBanPanel = showBanPanel;
-    window.banUserPrompt = banUserPrompt;
-    window.unbanUser = unbanUser;
-    window.canEditReply = canEditReply;
-    window.canDeletePost = canDeletePost;
-  </script>
-</body>
-</html>
+        
+        // Update the board UI
+        function updateBoardUI() {
+            // Clear all pieces
+            document.querySelectorAll('.chess-piece').forEach(el => el.remove());
+            document.querySelectorAll('.last-move').forEach(el => el.classList.remove('last-move'));
+            
+            // Add all pieces
+            for (let row = 0; row < BOARD_SIZE; row++) {
+                for (let col = 0; col < BOARD_SIZE; col++) {
+                    if (gameBoard[row][col] !== EMPTY) {
+                        const cell = document.querySelector(`.board-cell[data-row="${row}"][data-col="${col}"]`);
+                        const piece = document.createElement('div');
+                        piece.className = `chess-piece ${gameBoard[row][col] === BLACK ? 'chess-black' : 'chess-white'}`;
+                        cell.appendChild(piece);
+                    }
+                }
+            }
+            
+            // Highlight last move
+            if (gameHistory.length > 0) {
+                const lastMove = gameHistory[gameHistory.length - 1];
+                const lastCell = document.querySelector(`.board-cell[data-row="${lastMove.row}"][data-col="${lastMove.col}"]`);
+                lastCell.classList.add('last-move');
+            }
+        }
+        
+        // Add move to history
+        function addToHistory(row, col, player) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item p-2 rounded cursor-pointer';
+            historyItem.innerHTML = `
+                <span class="inline-block w-6 h-6 rounded-full ${player === BLACK ? 'bg-black' : 'bg-white border border-gray-300'} mr-2"></span>
+                <span>Move ${gameHistory.length}: ${player === BLACK ? 'Black' : 'White'} at (${String.fromCharCode(65 + col)}${row + 1})</span>
+            `;
+            historyItem.addEventListener('click', () => {
+                // Highlight the move on the board
+                document.querySelectorAll('.history-item').forEach(el => el.style.backgroundColor = '');
+                historyItem.style.backgroundColor = '#f3f4f6';
+                
+                // You could implement move navigation here
+            });
+            historyListElement.prepend(historyItem);
+        }
+        
+        // Update game status display
+        function updateGameStatus() {
+            if (gameActive) {
+                gameStatusElement.textContent = `${currentPlayer === BLACK ? 'Black' : 'White'}'s Turn`;
+                gameStatusElement.className = `p-2 bg-${currentPlayer === BLACK ? 'gray-800' : 'gray-100'} rounded-md text-center text-sm font-medium text-${currentPlayer === BLACK ? 'white' : 'gray-800'}`;
+            }
+        }
+        
+        // Check for win condition
+        function checkWin(row, col, player) {
+            const directions = [
+                [0, 1],   // horizontal
+                [1, 0],   // vertical
+                [1, 1],   // diagonal down-right
+                [1, -1]   // diagonal down-left
+            ];
+            
+            for (const [dx, dy] of directions) {
+                let count = 1;
+                
+                // Check in positive direction
+                for (let i = 1; i < 5; i++) {
+                    const newRow = row + i * dx;
+                    const newCol = col + i * dy;
+                    if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 || newCol >= BOARD_SIZE || 
+                        gameBoard[newRow][newCol] !== player) {
+                        break;
+                    }
+                    count++;
+                }
+                
+                // Check in negative direction
+                for (let i = 1; i < 5; i++) {
+                    const newRow = row - i * dx;
+                    const newCol = col - i * dy;
+                    if (newRow < 0 || newRow >= BOARD_SIZE || newCol < 0 ||
